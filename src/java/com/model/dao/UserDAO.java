@@ -1,0 +1,230 @@
+package com.model.dao;
+
+import com.model.bean.User;
+import com.util.DBContext;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+public class UserDAO {
+
+    // 1. Kiểm tra Email tồn tại
+    public boolean checkEmailExist(String email) {
+        String query = "SELECT 1 FROM Users WHERE email = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // 2. Đăng ký User mới và trả về ID tự động tăng
+    public int registerUserReturnId(User u) {
+        String query = "INSERT INTO Users (name, email, password, gender, age, weight, height, desired_weight, desired_height, Role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'USER')";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            
+            ps.setString(1, u.getFullName());
+            ps.setString(2, u.getEmail());
+            ps.setString(3, u.getPassword());
+            ps.setBoolean(4, "Nam".equals(u.getGender())); 
+            ps.setInt(5, u.getAge());
+            ps.setFloat(6, u.getWeight());
+            ps.setFloat(7, u.getHeight());
+            ps.setFloat(8, u.getDesired_weight());
+            ps.setFloat(9, u.getDesired_height());
+            
+            ps.executeUpdate();
+            
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.out.println(">>> LỖI SQL TẠI UserDAO (Register): " + e.getMessage());
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    // 3. Kiểm tra đăng nhập
+    public User checkLogin(String email, String password) {
+        String query = "SELECT * FROM Users WHERE email = ? AND password = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setString(1, email);
+            ps.setString(2, password);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("User_id"));           
+                    user.setFullName(rs.getString("name"));    
+                    user.setEmail(rs.getString("email"));
+                    user.setRole(rs.getString("Role"));
+                    user.setAge(rs.getInt("age"));
+                    user.setWeight(rs.getFloat("weight"));
+                    user.setHeight(rs.getFloat("height"));
+                    user.setDesired_weight(rs.getFloat("desired_weight"));
+                    user.setDesired_height(rs.getFloat("desired_height"));
+                    user.setGender(rs.getBoolean("gender") ? "Nam" : "Nữ");
+                    return user;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // 4. Cập nhật chỉ số sức khỏe cơ bản
+    public boolean updateHealthProfile(User u) {
+        String query = "UPDATE Users SET gender=?, age=?, weight=?, height=?, desired_weight=?, desired_height=? WHERE User_id=?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setBoolean(1, "Nam".equals(u.getGender())); 
+            ps.setInt(2, u.getAge());
+            ps.setFloat(3, u.getWeight());
+            ps.setFloat(4, u.getHeight());
+            ps.setFloat(5, u.getDesired_weight());
+            ps.setFloat(6, u.getDesired_height());
+            ps.setInt(7, u.getId()); 
+            
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // --- PHẦN XỬ LÝ BỆNH LÝ & DỊ ỨNG ---
+
+    // Lấy danh sách ID bệnh của User
+    public List<Integer> getDiseaseIdsByUserId(int userId) {
+        List<Integer> list = new ArrayList<>();
+        String query = "SELECT Disease_id FROM User_disease WHERE User_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(rs.getInt(1));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    // Lấy danh sách ID dị ứng của User
+    public List<Integer> getAllergyIdsByUserId(int userId) {
+        List<Integer> list = new ArrayList<>();
+        String query = "SELECT Ingredient_id FROM User_Allergy WHERE User_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(rs.getInt(1));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    // Lưu danh sách bệnh (dùng cho cả Đăng ký và Cập nhật)
+    public void addUserDiseases(int userId, String[] diseaseIds) {
+        if (diseaseIds == null || diseaseIds.length == 0) return;
+        String query = "INSERT INTO User_disease (User_id, Disease_id) VALUES (?, ?)";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            for (String dId : diseaseIds) {
+                if (dId != null && !dId.isEmpty()) {
+                    ps.setInt(1, userId);
+                    ps.setInt(2, Integer.parseInt(dId));
+                    ps.addBatch();
+                }
+            }
+            ps.executeBatch();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // Lưu danh sách dị ứng (dùng cho cả Đăng ký và Cập nhật)
+    public void addUserAllergies(int userId, String[] allergyIds) {
+        if (allergyIds == null || allergyIds.length == 0) return;
+        String query = "INSERT INTO User_Allergy (User_id, Ingredient_id) VALUES (?, ?)";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            for (String aId : allergyIds) {
+                if (aId != null && !aId.isEmpty()) {
+                    ps.setInt(1, userId);
+                    ps.setInt(2, Integer.parseInt(aId));
+                    ps.addBatch();
+                }
+            }
+            ps.executeBatch();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // Cập nhật bệnh lý (Xóa cũ - Ghi mới)
+    public void updateDiseases(int userId, String[] diseaseIds) {
+        try (Connection conn = new DBContext().getConnection()) {
+            PreparedStatement psDel = conn.prepareStatement("DELETE FROM User_disease WHERE User_id = ?");
+            psDel.setInt(1, userId);
+            psDel.executeUpdate();
+            addUserDiseases(userId, diseaseIds);
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // Cập nhật dị ứng (Xóa cũ - Ghi mới)
+    public void updateAllergies(int userId, String[] allergyIds) {
+        try (Connection conn = new DBContext().getConnection()) {
+            PreparedStatement psDel = conn.prepareStatement("DELETE FROM User_Allergy WHERE User_id = ?");
+            psDel.setInt(1, userId);
+            psDel.executeUpdate();
+            addUserAllergies(userId, allergyIds);
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+    // --- PHẦN CÀI ĐẶT TÀI KHOẢN ---
+
+    // 1. Cập nhật Tên và Email
+    public boolean updateBasicInfo(int userId, String name, String email) {
+        String query = "UPDATE Users SET name = ?, email = ? WHERE User_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, name);
+            ps.setString(2, email);
+            ps.setInt(3, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 2. Đổi mật khẩu (Kiểm tra mật khẩu cũ trước khi đổi)
+    public boolean changePassword(int userId, String oldPassword, String newPassword) {
+        // Bước A: Kiểm tra xem pass cũ có đúng không
+        String checkQuery = "SELECT 1 FROM Users WHERE User_id = ? AND password = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement psCheck = conn.prepareStatement(checkQuery)) {
+            psCheck.setInt(1, userId);
+            psCheck.setString(2, oldPassword);
+            try (ResultSet rs = psCheck.executeQuery()) {
+                if (rs.next()) {
+                    // Bước B: Pass cũ đúng -> Tiến hành đổi pass mới
+                    String updateQuery = "UPDATE Users SET password = ? WHERE User_id = ?";
+                    try (PreparedStatement psUpdate = conn.prepareStatement(updateQuery)) {
+                        psUpdate.setString(1, newPassword);
+                        psUpdate.setInt(2, userId);
+                        return psUpdate.executeUpdate() > 0;
+                    }
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return false; // Mật khẩu cũ sai hoặc có lỗi
+    }
+}
