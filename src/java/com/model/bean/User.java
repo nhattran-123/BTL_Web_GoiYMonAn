@@ -6,7 +6,6 @@ public class User {
     private String email;
     private String password;
     
-    // --- PHẦN KHAI BÁO BỔ SUNG BỊ THIẾU ---
     private String gender;
     private int age;
     private float weight;
@@ -14,19 +13,20 @@ public class User {
     private float desired_weight;
     private float desired_height;
     private String role;
+    
+    // 2 biến này dùng để chứa dữ liệu giả cho giao diện
+    private int status; 
+    private String createdAt;
 
-    // Hàm khởi tạo rỗng
     public User() {
     }
 
-    // Hàm khởi tạo có tham số
     public User(String email, String password, String fullName) {
         this.email = email;
         this.password = password;
         this.fullName = fullName;
     }
 
-    // --- GETTERS VÀ SETTERS CHO TẤT CẢ ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -39,7 +39,6 @@ public class User {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    // Dàn Get/Set cho các chỉ số sức khỏe
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
 
@@ -60,4 +59,10 @@ public class User {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public int getStatus() { return status; }
+    public void setStatus(int status) { this.status = status; }
+
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 }
