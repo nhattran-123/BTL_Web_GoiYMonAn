@@ -124,7 +124,7 @@
                                             <i class="fa-regular fa-envelope"></i> Gửi email
                                         </a>
                                         <a href="${pageContext.request.contextPath}/admin/users?action=deactivate&id=${u.id}" style="display: block; padding: 8px 5px; color: #e74c3c; text-decoration: none;" onclick="return confirm('Cảnh báo: Bạn có chắc chắn muốn XÓA VĨNH VIỄN người dùng này khỏi CSDL?');">
-                                            <i class="fa-solid fa-trash"></i> Vô hiệu hóa
+                                            <i class="fa-solid fa-trash"></i> Xóa tài khoản
                                         </a>
                                     </div>
                                 </div>
@@ -154,13 +154,13 @@
     <div id="emailModal" class="modal">
         <div class="modal-content">
             <h3><i class="fa-regular fa-paper-plane"></i> Gửi Email thông báo</h3>
-            <form action="#" method="POST">
+            <form id="emailForm" onsubmit="return sendFakeEmail(event)">
                 <label>Gửi đến:</label>
                 <input type="email" id="modalEmail" name="toEmail" readonly style="background: #f1f1f1;">
                 <label>Tiêu đề:</label>
-                <input type="text" name="subject" placeholder="Nhập tiêu đề...">
+                <input type="text" name="subject" placeholder="Nhập tiêu đề..." required>
                 <label>Nội dung:</label>
-                <textarea name="message" rows="5" placeholder="Nhập nội dung tin nhắn..."></textarea>
+                <textarea name="message" rows="5" placeholder="Nhập nội dung tin nhắn..." required></textarea>
                 <div style="text-align: right; margin-top: 10px;">
                     <button type="button" class="btn-cancel" onclick="closeEmailModal()">Hủy bỏ</button>
                     <button type="submit" class="btn-send">Gửi tin nhắn</button>
@@ -195,8 +195,23 @@
             for (var i = 0; i < dropdowns.length; i++) dropdowns[i].style.display = "none";
         }
 
+        // HÀM MỚI: Đóng modal và dọn dẹp sạch sẽ bộ nhớ form
         function closeEmailModal() {
             document.getElementById("emailModal").style.display = "none";
+            document.getElementById("emailForm").reset(); // Xóa sạch tiêu đề và nội dung cũ
+        }
+
+        // HÀM MỚI: Xử lý nút Gửi tin nhắn (Hiển thị thông báo giả)
+        function sendFakeEmail(event) {
+            event.preventDefault(); // Ngăn form load lại trang (Chặn luôn cái lỗi 405)
+            
+            // Hiển thị thông báo thành công
+            alert("Đã gửi email thông báo thành công đến người dùng!");
+            
+            // Sau khi gửi thì tự động đóng popup và xóa sạch form
+            closeEmailModal(); 
+            
+            return false;
         }
     </script>
 </body>

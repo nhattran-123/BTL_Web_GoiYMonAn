@@ -258,27 +258,28 @@ public class UserDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
-    // 1. Đếm tổng số người dùng (theo bộ lọc) để tính tổng số trang
-public int getTotalUsers(String keyword, String role) {
-    String sql = "SELECT COUNT(*) FROM Users WHERE 1=1 ";
-    if (keyword != null && !keyword.isEmpty()) sql += " AND (name LIKE ? OR email LIKE ?) ";
-    if (role != null && !role.equals("all") && !role.isEmpty()) sql += " AND Role = ? ";
 
-    try (Connection conn = new DBContext().getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-        int paramIndex = 1;
-        if (keyword != null && !keyword.isEmpty()) {
-            ps.setString(paramIndex++, "%" + keyword + "%");
-            ps.setString(paramIndex++, "%" + keyword + "%");
-        }
-        if (role != null && !role.equals("all") && !role.isEmpty()) {
-            ps.setString(paramIndex++, role);
-        }
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) return rs.getInt(1);
-    } catch (Exception e) { e.printStackTrace(); }
-    return 0;
-}
+    // 1. Đếm tổng số người dùng (theo bộ lọc) để tính tổng số trang
+    public int getTotalUsers(String keyword, String role) {
+        String sql = "SELECT COUNT(*) FROM Users WHERE 1=1 ";
+        if (keyword != null && !keyword.isEmpty()) sql += " AND (name LIKE ? OR email LIKE ?) ";
+        if (role != null && !role.equals("all") && !role.isEmpty()) sql += " AND Role = ? ";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            int paramIndex = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(paramIndex++, "%" + keyword + "%");
+                ps.setString(paramIndex++, "%" + keyword + "%");
+            }
+            if (role != null && !role.equals("all") && !role.isEmpty()) {
+                ps.setString(paramIndex++, role);
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
 
     // 2. Lấy danh sách 10 người cho 1 trang cụ thể
     public List<User> getUsersPaged(String keyword, String role, int index) {
@@ -316,14 +317,36 @@ public int getTotalUsers(String keyword, String role) {
         return list;
     }
 
-    // Vô hiệu hóa = XÓA THẲNG KHỎI CSDL
+    // Vô hiệu hóa = XÓA THẲNG KHỎI CSDL (Kèm xóa dữ liệu liên quan để tránh lỗi khóa ngoại)
     public boolean deleteUser(int userId) {
-        String sql = "DELETE FROM Users WHERE User_id = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) { e.printStackTrace(); }
+        String sqlDeleteAllergy = "DELETE FROM User_Allergy WHERE User_id = ?";
+        String sqlDeleteDisease = "DELETE FROM User_disease WHERE User_id = ?";
+        String sqlDeleteUser = "DELETE FROM Users WHERE User_id = ?";
+
+        try (Connection conn = new DBContext().getConnection()) {
+            
+            // 1. Xóa Dị ứng trước
+            try (PreparedStatement ps1 = conn.prepareStatement(sqlDeleteAllergy)) {
+                ps1.setInt(1, userId);
+                ps1.executeUpdate();
+            }
+            
+            // 2. Xóa Bệnh lý tiếp theo
+            try (PreparedStatement ps2 = conn.prepareStatement(sqlDeleteDisease)) {
+                ps2.setInt(1, userId);
+                ps2.executeUpdate();
+            }
+            
+            // 3. Cuối cùng mới tiêu diệt User ở bảng chính
+            try (PreparedStatement ps3 = conn.prepareStatement(sqlDeleteUser)) {
+                ps3.setInt(1, userId);
+                return ps3.executeUpdate() > 0;
+            }
+            
+        } catch (Exception e) {
+            System.out.println("LỖI KHI XÓA USER: " + e.getMessage());
+            e.printStackTrace();
+        }
         return false;
     }
 }
