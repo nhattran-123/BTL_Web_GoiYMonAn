@@ -134,10 +134,6 @@
             </div>
         </div>
 
-        <div class="chart-card">
-            <h3 style="text-align: center; color: #111827; margin-top: 0;">Người dùng đăng ký mới</h3>
-            <canvas id="myChart" height="80"></canvas>
-        </div>
 
         <div class="bottom-grid">
             <div class="list-card">
@@ -166,28 +162,6 @@
         </div>
     </main>
 
-    <script>
-        const ctx = document.getElementById('myChart');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
-                datasets: [{
-                    label: 'Người dùng',
-                    data: [120, 180, 150, 220, 280, 250],
-                    backgroundColor: '#10b981', // Màu xanh của Healthy Food
-                    borderRadius: 5,
-                    barPercentage: 0.6
-                }]
-            },
-            options: {
-                scales: {
-                    y: { beginAtZero: true, grid: { display: false } },
-                    x: { grid: { display: false } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    </script>
+ 
 </body>
 </html>

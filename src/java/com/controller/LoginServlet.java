@@ -2,7 +2,7 @@ package com.controller;
 
 import com.model.bean.User;
 import com.model.dao.UserDAO;
-import com.util.SecurityUtil; // Quan trọng: Import công cụ băm mật khẩu
+import com.util.SecurityUtil; 
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
