@@ -20,32 +20,33 @@ public class FoodDetailServlet extends HttpServlet {
         HttpSession session = request.getSession();
         com.model.bean.User currentUser = (com.model.bean.User) session.getAttribute("currentUser");
 
-        // 2. NẾU CHƯA ĐĂNG NHẬP -> ĐÁ VỀ TRANG LOGIN
+        // 2. Nếu chưa đăng nhập -> về trang login
         if (currentUser == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return; // Dừng luôn, không cho chạy code bên dưới
         }
 
-        // 3. ĐÃ ĐĂNG NHẬP -> LẤY ID THỰC TẾ
-        int userId = currentUser.getId(); // TO DO: Sau này làm Login thì lấy ID người dùng từ Session
+        // 3. Đã đăng nhập, lấy id user
+        int userId = currentUser.getId(); 
         
         try {
             int foodId = Integer.parseInt(idRaw);
             FoodDAO dao = new FoodDAO();
             
             Food food = dao.getFoodById(foodId);
-            
+            java.util.List<com.model.bean.IngredientItem> ingredients = dao.getIngredientsByFoodId(foodId);
             if (food == null) {
                 response.sendRedirect(request.getContextPath() + "/foods");
                 return;
             }
             
             request.setAttribute("food", food);
+            request.setAttribute("ingredients", ingredients);
             request.getRequestDispatcher("/views/auth/food_detail.jsp").forward(request, response);
             
         } catch (Exception e) {
             e.printStackTrace(); 
-//            response.sendRedirect(request.getContextPath() + "/foods");
+            response.sendRedirect(request.getContextPath() + "/foods");
         }
     }
 }

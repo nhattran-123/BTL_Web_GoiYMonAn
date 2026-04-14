@@ -10,25 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/index.css">
-
-    <style>
-        /* CSS riêng cho phần thẻ món ăn (Card) bên phải */
-        .main-content { flex: 1; padding: 40px; background-color: #f4f7f6; min-height: 100vh;}
-        h1 { color: #1a1a1a; margin-top: 0;}
-        .sub-text { color: #666; margin-bottom: 30px; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; text-decoration: none; color: inherit; display: block; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-        .card-img-wrapper { position: relative; height: 180px; }
-        .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        .badge-safe { position: absolute; top: 10px; right: 10px; background: #1cc865; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
-        
-        .card-body { padding: 20px; }
-        .card-title { font-size: 18px; font-weight: bold; margin: 0 0 5px; }
-        .card-calo { color: #888; font-size: 14px; margin-bottom: 15px;}
-        .card-rating { font-size: 14px; color: #1cc865; display: flex; align-items: center; gap: 5px; }
-    </style>
+    
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/food_list.css">
 </head>
 <body style="display: flex; margin: 0;">
 
@@ -80,25 +63,15 @@
                     </div>
                     <div class="card-body">
                         <h3 class="card-title">${food.food_name}</h3>
-                       <div class="card-calo">${food.displayCalories} calo
-                    </div>
+                        <div class="card-calo">${food.displayCalories} calo</div>
                         <div class="card-rating"><i class="fa-solid fa-star"></i> Phù hợp mục tiêu</div>
                     </div>
                 </a>
             </c:forEach>
         </div>
     </main>
-    <c:if test="${param.success == 'true'}">
-        <style>
-            #toast {
-                min-width: 250px; background-color: #10b981; color: #fff;
-                text-align: center; border-radius: 8px; padding: 16px;
-                position: fixed; z-index: 1000; right: 30px; top: 30px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                transition: opacity 0.5s ease-out; 
-            }
-        </style>
 
+    <c:if test="${param.success == 'true'}">
         <div id="toast">
             <i class="fa-solid fa-circle-check"></i> Đã lưu công thức thành công!
         </div>
@@ -110,7 +83,7 @@
                     t.style.opacity = '0';
                     setTimeout(function(){ t.style.display = 'none'; }, 500);
                 }
-                
+                // Xóa parameter thành công trên URL cho sạch
                 window.history.replaceState(null, null, window.location.pathname);
             }, 3000);
         </script>
