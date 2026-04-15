@@ -120,7 +120,7 @@
 
     <div id="ingredient-template" style="display: none;">
         <select class="input-soft name" name="ingredientId" onchange="onIngredientChange(this)" style="flex: 1; padding: 10px;">
-            <option value="" disabled selected>-- Chọn nguyên liệu từ DB --</option>
+            <option value="" disabled selected>-- Chọn nguyên liệu từ danh sách --</option>
             <c:forEach var="ing" items="${allIngredients}">
                 <option value="${ing.ingredientId}" data-calo="${ing.caloPerGram}" data-fat="${ing.fatPerGram}" data-protein="${ing.proteinPerGram}" data-carbs="${ing.carbsPerGram}">
                     ${ing.ingredientName}

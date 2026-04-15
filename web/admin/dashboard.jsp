@@ -94,7 +94,7 @@
             </a>
         </li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-utensils"></i> Quản lý món ăn</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-apple-whole"></i> Quản lý nguyên liệu</a></li>
+            <li class="nav-item"><a href="${pageContext.request.contextPath}/admin/manage-ingredient" class="nav-link"><i class="fa-solid fa-apple-whole"></i> Quản lý nguyên liệu</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-heart-pulse"></i> Quản lý bệnh lý</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-gear"></i> Cài đặt</a></li>
         </ul>
