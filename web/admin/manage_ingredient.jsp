@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <title>Quản lý Nguyên liệu - Healthy Food</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage-ingredient.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage_ingredient.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -31,7 +31,7 @@
                 <a href="#" class="nav-link"><i class="fa-solid fa-utensils"></i> Quản lý món ăn</a>
             </li>
             <li class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/manage-ingredient" class="nav-link active">
+                <a href="${pageContext.request.contextPath}/admin/manage_ingredient" class="nav-link active">
                     <i class="fa-solid fa-apple-whole"></i> Quản lý nguyên liệu
                 </a>
             </li>
@@ -51,7 +51,7 @@
                 <h1>Quản lý Nguyên liệu</h1>
                 <p>Thêm sửa xóa nguyên liệu trong hệ thống</p>
             </div>
-            <a href="#" class="btn-add" style="background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500;">
+            <a href="${pageContext.request.contextPath}/admin/add_ingredient" class="btn-add" style="background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500;">
                 + Thêm nguyên liệu
             </a>
         </div>
@@ -61,7 +61,13 @@
                 <i class="fa-solid fa-circle-check"></i> Đã xóa nguyên liệu thành công!
             </div>
         </c:if>
-
+        
+        <c:if test="${param.success == 'added'}">
+            <div style="background: #d1fae5; color: #059669; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-check"></i> Đã thêm nguyên liệu mới thành công!
+            </div>
+        </c:if>
+        
         <div class="search-card">
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -78,6 +84,9 @@
                         <th>Tên nguyên liệu</th>
                         <th>Phân loại</th>
                         <th>Calo</th>
+                        <th>Protein</th>
+                        <th>fat</th>
+                        <th>carbohydrate</th>
                         <th>Đơn vị</th>
                         <th>Thao tác</th>
                     </tr>
@@ -88,6 +97,9 @@
                             <td style="font-weight: 500;">${item.name}</td>
                             <td><span class="badge-category">${item.category}</span></td>
                             <td>${item.calories}</td>
+                            <td>${item.protein}</td>
+                            <td>${item.fat}</td>
+                            <td>${item.carbohydrate}</td>
                             <td>100g</td>
                             <td>
                                 <a href="#" class="action-btn btn-edit"><i class="fa-regular fa-pen-to-square"></i></a>
@@ -114,15 +126,15 @@
             <c:if test="${totalPages > 1}">
                 <div class="pagination">
                     <c:if test="${currentPage > 1}">
-                        <a href="manage-ingredient?page=${currentPage - 1}"><i class="fa-solid fa-angle-left"></i></a>
+                        <a href="manage_ingredient?page=${currentPage - 1}"><i class="fa-solid fa-angle-left"></i></a>
                     </c:if>
                     
                     <c:forEach begin="1" end="${totalPages}" var="i">
-                        <a href="manage-ingredient?page=${i}" class="${i == currentPage ? 'active' : ''}">${i}</a>
+                        <a href="manage_ingredient?page=${i}" class="${i == currentPage ? 'active' : ''}">${i}</a>
                     </c:forEach>
                     
                     <c:if test="${currentPage < totalPages}">
-                        <a href="manage-ingredient?page=${currentPage + 1}"><i class="fa-solid fa-angle-right"></i></a>
+                        <a href="manage_ingredient?page=${currentPage + 1}"><i class="fa-solid fa-angle-right"></i></a>
                     </c:if>
                 </div>
             </c:if>
@@ -138,7 +150,7 @@
             <p>Bạn có chắc chắn muốn xóa nguyên liệu <strong id="deleteIngredientName"></strong> không? Hành động này không thể hoàn tác.</p>
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeDeleteModal()">Hủy bỏ</button>
-                <a href="#" id="confirmDeleteBtn" class="btn-confirm-delete">Vâng, Xóa nó!</a>
+                <a href="#" id="confirmDeleteBtn" class="btn-confirm-delete">Xóa !</a>
             </div>
         </div>
     </div>
@@ -150,7 +162,7 @@
             // Set tên vào câu hỏi
             document.getElementById('deleteIngredientName').innerText = name;
             // Tạo link Action gửi về Servlet và set vào nút Xóa
-            let deleteUrl = '${pageContext.request.contextPath}/admin/manage-ingredient?action=delete&id=' + id;
+            let deleteUrl = '${pageContext.request.contextPath}/admin/manage_ingredient?action=delete&id=' + id;
             document.getElementById('confirmDeleteBtn').href = deleteUrl;
         }
 

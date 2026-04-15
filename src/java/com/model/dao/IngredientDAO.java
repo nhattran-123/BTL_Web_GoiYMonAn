@@ -19,7 +19,7 @@ import java.util.List;
 
 
 public class IngredientDAO {
-    // 1. Đếm tổng số lượng nguyên liệu trong CSDL
+    // Đếm tổng số lượng nguyên liệu trong CSDL
     public int getTotalIngredient() {
         String sql = "SELECT COUNT(*) FROM Ingredient";
         try (Connection conn = new DBContext().getConnection();
@@ -34,11 +34,11 @@ public class IngredientDAO {
         return 0;
     }
 
-    // 2. Lấy danh sách nguyên liệu có Phân Trang
+    // Lấy danh sách nguyên liệu có Phân Trang
     public List<Ingredient> getIngredientsByPage(int offset, int limit) {
         List<Ingredient> list = new ArrayList<>();
         // MySQL sử dụng LIMIT [số lượng] OFFSET [vị trí bắt đầu]
-        String sql = "SELECT Ingredient_id, Ingredient_name, category, calories FROM Ingredient LIMIT ? OFFSET ?";
+        String sql = "SELECT Ingredient_id, Ingredient_name, category, calories, Protein, fat, carbohydrate FROM Ingredient LIMIT ? OFFSET ?";
         
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -53,6 +53,9 @@ public class IngredientDAO {
                     i.setName(rs.getString("Ingredient_name"));
                     i.setCategory(rs.getString("category"));
                     i.setCalories(rs.getDouble("calories"));
+                    i.setProtein(rs.getDouble("protein"));
+                    i.setFat(rs.getDouble("fat"));
+                    i.setCarbohydrate(rs.getDouble("carbohydrate"));
                     list.add(i);
                 }
             }
@@ -61,31 +64,7 @@ public class IngredientDAO {
         }
         return list;
     }
-    // Lấy toàn bộ nguyên liệu
-    public List<Ingredient> getAllIngredient(){
-        List<Ingredient> list = new ArrayList<>();
-        String sql = "Select Ingredient_id, Ingredient_name, calories, category from Ingredient";
-        
-        try(Connection conn= new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()){
-            while(rs.next()){
-                    Ingredient i = new Ingredient();
-                    i.setId(rs.getInt("Ingredient_id"));
-                    i.setName(rs.getString("Ingredient_name"));
-                    i.setCalories(rs.getDouble("calories"));
-                    i.setCategory(rs.getString("category"));
-                    
-                    list.add(i);
-                }
-            
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        
-        return list;
-    }
-
+   
     // Xoa' nguyen lieu
     public boolean deleteIngredient(int id) {
         String sqlDeleteFoodIngredient = "delete from food_ingredient where Ingredient_id= ?";
@@ -124,4 +103,25 @@ public class IngredientDAO {
         return false;
     }
     
+   // Thêm nguyên liệu mới vào Database
+    public boolean insertIngredient(Ingredient ing) {
+        String sql = "INSERT INTO Ingredient (Ingredient_name, calories, category, Protein, fat, carbohydrate) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+             
+            ps.setString(1, ing.getName());
+            ps.setDouble(2, ing.getCalories());
+            ps.setString(3, ing.getCategory());
+            ps.setDouble(4, ing.getProtein());
+            ps.setDouble(5, ing.getFat());
+            ps.setDouble(6, ing.getCarbohydrate());
+            
+            return ps.executeUpdate() > 0;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

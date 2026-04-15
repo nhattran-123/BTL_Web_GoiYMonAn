@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(name = "ManageIngredientServlet", urlPatterns = {"/admin/manage-ingredient"})
+@WebServlet(name = "ManageIngredientServlet", urlPatterns = {"/admin/manage_ingredient"})
 public class ManageIngredientServlet extends HttpServlet {
     private IngredientDAO ingredientDAO = new IngredientDAO();
     
@@ -29,7 +29,7 @@ public class ManageIngredientServlet extends HttpServlet {
                 try{
                     int id = Integer.parseInt(request.getParameter("id"));
                     ingredientDAO.deleteIngredient(id);
-                    response.sendRedirect(request.getContextPath() + "/admin/manage-ingredient?success=deleted");
+                    response.sendRedirect(request.getContextPath() + "/admin/manage_ingredient?success=deleted");
                     return;
                 } catch (Exception e){
                     e.printStackTrace();
@@ -66,7 +66,7 @@ public class ManageIngredientServlet extends HttpServlet {
         request.setAttribute("totalRecords", totalRecords); // Gửi thêm để hiển thị "(1000)" trên tiêu đề
         
         // Forward sang JSP
-        request.getRequestDispatcher("/admin/manage-ingredient.jsp").forward(request, response);
+        request.getRequestDispatcher("/admin/manage_ingredient.jsp").forward(request, response);
         
 
     }
