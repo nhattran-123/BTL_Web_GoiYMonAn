@@ -61,7 +61,13 @@
                 <i class="fa-solid fa-circle-check"></i> Đã xóa nguyên liệu thành công!
             </div>
         </c:if>
-        
+                
+        <c:if test="${param.success == 'updated'}">
+            <div style="background: #e0f2fe; color: #0284c7; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-info"></i> Đã cập nhật nguyên liệu thành công!
+            </div>
+        </c:if>
+                
         <c:if test="${param.success == 'added'}">
             <div style="background: #d1fae5; color: #059669; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                 <i class="fa-solid fa-circle-check"></i> Đã thêm nguyên liệu mới thành công!
@@ -102,8 +108,9 @@
                             <td>${item.carbohydrate}</td>
                             <td>100g</td>
                             <td>
-                                <a href="#" class="action-btn btn-edit"><i class="fa-regular fa-pen-to-square"></i></a>
-                                
+                                <a href="${pageContext.request.contextPath}/admin/edit_ingredient?id=${item.id}" class="action-btn btn-edit">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </a>
                                 <a href="javascript:void(0);" 
                                    class="action-btn btn-delete"
                                    onclick="showDeleteModal('${item.id}', '${item.name}')">

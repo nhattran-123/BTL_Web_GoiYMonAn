@@ -124,4 +124,48 @@ public class IngredientDAO {
         }
         return false;
     }
+    // Lấy thông tin 1 nguyên liệu cụ thể để sửa
+    public Ingredient getIngredientById(int id) {
+        String sql = "SELECT * FROM Ingredient WHERE Ingredient_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Ingredient i = new Ingredient();
+                    i.setId(rs.getInt("Ingredient_id"));
+                    i.setName(rs.getString("Ingredient_name"));
+                    i.setCalories(rs.getDouble("calories"));
+                    i.setCategory(rs.getString("category"));
+                    i.setProtein(rs.getDouble("Protein"));
+                    i.setFat(rs.getDouble("fat"));
+                    i.setCarbohydrate(rs.getDouble("carbohydrate"));
+                    return i;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Cập nhật thông tin nguyên liệu
+    public boolean updateIngredient(Ingredient ing) {
+        String sql = "UPDATE Ingredient SET Ingredient_name = ?, calories = ?, category = ?, Protein = ?, fat = ?, carbohydrate = ? WHERE Ingredient_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, ing.getName());
+            ps.setDouble(2, ing.getCalories());
+            ps.setString(3, ing.getCategory());
+            ps.setDouble(4, ing.getProtein());
+            ps.setDouble(5, ing.getFat());
+            ps.setDouble(6, ing.getCarbohydrate());
+            ps.setInt(7, ing.getId());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
+
