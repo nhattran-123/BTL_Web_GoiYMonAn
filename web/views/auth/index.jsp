@@ -11,14 +11,16 @@
 <body>
 
     <header class="header">
-        <div class="logo">
-            <div class="logo-circle"></div>
-            <span>Healthy Food</span>
+    <div class="logo">
+        <div class="logo-circle">
+            <i class="fa-solid fa-leaf"></i>
         </div>
-        <div class="auth-buttons">
-            <a href="${pageContext.request.contextPath}/login" class="btn btn-outline">Đăng nhập</a>
-            <a href="${pageContext.request.contextPath}/register" class="btn btn-filled">Đăng ký ngay</a>
-        </div>
+        <span>Healthy Food</span>
+    </div>
+    <div class="auth-buttons">
+        <a href="${pageContext.request.contextPath}/login" class="btn btn-outline">Đăng nhập</a>
+        <a href="${pageContext.request.contextPath}/register" class="btn btn-filled">Đăng ký ngay</a>
+    </div>
     </header>
 
     <section class="hero">

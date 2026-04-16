@@ -1,21 +1,4 @@
-/* --- RESET & BIẾN MÀU CƠ BẢN --- */
-:root {
-    --bg-color: #f1fcf1;
-    --primary-green: #2ecc71;
-    --dark-green: #109c54;
-    --text-main: #333;
-    --text-gray: #777;
-    --highlight-gold: #e6b15c;
-    --card-bg: #ffffff;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
+@import url('base.css');
 body {
     background-color: var(--bg-color);
     color: var(--text-main);
