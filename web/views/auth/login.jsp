@@ -20,12 +20,11 @@
 <body>
 
     <div class="login-container">
-        <div class="logo-icon">
-        <svg viewBox="0 0 24 24">
-            <path d="M12 21.5 C17 17.5 19 12 12 3 M12 21.5 C7 17.5 5 12 12 3" fill="none" />
-            <path d="M12 21.5 L12 11" fill="none" />
-        </svg>
+        <div class="brand" style="justify-content: center; margin-bottom: 32px; padding: 0; display: flex; align-items: center; gap: 12px;">
+    <div class="brand-icon" style="background-color: #10b981; width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
+        <i class="fa-solid fa-leaf"></i>
     </div>
+</div>
 
         <h1 class="login-title">Đăng Nhập</h1>
         <p class="login-subtitle">Nhập email và mật khẩu để tiếp tục</p>

@@ -15,16 +15,14 @@ body { background-color: #eafaf1; display: flex; justify-content: center; align-
 }
 
 .logo-icon {
-    width: 60px; height: 60px;
-    background-color: #2ecc71;
-    border-radius: 50%;
-    margin: 0 auto 20px;
-    display: flex; justify-content: center; align-items: center;
-}
-
-.logo-icon svg { width: 30px; height: 30px; stroke: white; stroke-width: 2; }
-.login-title { font-size: 24px; color: #333; margin-bottom: 8px; font-weight: 600; }
-.login-subtitle { font-size: 14px; color: #888; margin-bottom: 30px; }
+    background-color: var(--primary-green);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;}
 
 /* Các ô nhập liệu */
 .input-group { margin-bottom: 20px; text-align: left; }
