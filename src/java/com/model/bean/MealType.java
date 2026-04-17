@@ -5,33 +5,33 @@
 package com.model.bean;
 
 public class MealType {
-    private int mealTypeId;
-    private String mealName;
-    private double targetCalories;
+    private int meal_type_id;
+    private String meal_name;
+    private double target_calories;
 
-    public int getMealTypeId() {
-        return mealTypeId;
+    public int getMeal_type_id() {
+        return meal_type_id;
     }
 
-    public String getMealName() {
-        return mealName;
+    public String getMeal_name() {
+        return meal_name;
     }
 
-    public double getTargetCalories() {
-        return targetCalories;
+    public double getTarget_calories() {
+        return target_calories;
     }
 
-    // Getter Setter
-
-    public void setMealTypeId(int mealTypeId) {
-        this.mealTypeId = mealTypeId;
+    public void setMeal_type_id(int meal_type_id) {
+        this.meal_type_id = meal_type_id;
     }
 
-    public void setMealName(String mealName) {
-        this.mealName = mealName;
+    public void setMeal_name(String meal_name) {
+        this.meal_name = meal_name;
     }
 
-    public void setTargetCalories(double targetCalories) {
-        this.targetCalories = targetCalories;
+    public void setTarget_calories(double target_calories) {
+        this.target_calories = target_calories;
     }
+
+   
 }

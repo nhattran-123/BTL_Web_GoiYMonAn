@@ -1,5 +1,6 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -41,8 +42,22 @@
                 <h1>Thực đơn</h1>
                 <p>Dữ liệu hiển thị theo ngày bạn chọn từ cơ sở dữ liệu.</p>
             </div>
-            <div class="calo-badge"><i class="fa-solid fa-fire-flame-curved"></i> ${totalCalories} calo</div>
+            <div class="calo-badge"><i class="fa-solid fa-fire-flame-curved"></i> <fmt:formatNumber value="${totalCalories}" minFractionDigits="2" maxFractionDigits="2" /> calo</div>
         </header>
+
+        <section class="card slider-card">
+            <a class="slider-nav" href="${pageContext.request.contextPath}/meal_plan?date=${weekSlider[0].date}">&lt;</a>
+            <div class="week-track">
+                <c:forEach var="d" items="${weekSlider}">
+                    <a href="${pageContext.request.contextPath}/meal_plan?date=${d.date}" class="day-pill ${d.selected ? 'active' : ''}">
+                        <span class="dow">${d.dow}</span>
+                        <strong>${d.day}</strong>
+                        <span class="dot ${d.hasMeals ? 'has-meal' : ''}"></span>
+                    </a>
+                </c:forEach>
+            </div>
+            <a class="slider-nav" href="${pageContext.request.contextPath}/meal_plan?date=${weekSlider[6].date}">&gt;</a>
+        </section>
 
         <section class="card filter-card">
             <form method="get" action="${pageContext.request.contextPath}/meal_plan" class="date-form">
@@ -58,7 +73,9 @@
                     <div class="meal-row-head">
                         <div class="meal-title"><i class="fa-regular fa-sun"></i> ${section.mealName}</div>
                         <div class="meal-meta">
-                            ${section.usedCalories}/${section.targetCalories} calo
+                            <fmt:formatNumber value="${section.usedCalories}" minFractionDigits="2" maxFractionDigits="2" />
+                            /
+                            <fmt:formatNumber value="${section.targetCalories}" minFractionDigits="2" maxFractionDigits="2" /> calo
                             <button type="button" class="text-btn open-adjust">Điều chỉnh</button>
                         </div>
                     </div>
@@ -73,7 +90,7 @@
                                     <img src="${pageContext.request.contextPath}/assets/images/${food.imageUrl}" alt="${food.foodName}">
                                     <div>
                                         <h4>${food.foodName}</h4>
-                                        <p>${food.calories} calo</p>
+                                        <p><fmt:formatNumber value="${food.calories}" minFractionDigits="2" maxFractionDigits="2" /> calo</p>
                                     </div>
                                     <form method="post" action="${pageContext.request.contextPath}/meal_plan" class="remove-form">
                                         <input type="hidden" name="action" value="removeDetail">
@@ -99,15 +116,14 @@
             <button type="button" class="close-modal"><i class="fa-solid fa-xmark"></i></button>
             <h3 id="adjustTitle">Điều chỉnh món ăn</h3>
             <form method="post" action="${pageContext.request.contextPath}/meal_plan">
-                <input type="hidden" name="action" value="addMealFood">
+                <input type="hidden" name="action" value="addMealFoods">
                 <input type="hidden" name="selectedDate" value="${selectedDate}">
                 <input type="hidden" id="adjustMealTypeId" name="mealTypeId">
                 <div class="form-group">
-                    <label>Chọn món ăn từ dữ liệu hệ thống</label>
-                    <select name="foodId" required>
-                        <option value="">-- Chọn món ăn --</option>
+                    <label>Chọn nhiều món ăn (giữ Ctrl/Cmd để chọn nhiều)</label>
+                    <select name="foodIds" multiple required size="8" class="multi-select">
                         <c:forEach var="food" items="${allFoods}">
-                            <option value="${food.food_id}">${food.food_name} (${food.calories} calo)</option>
+                            <option value="${food.food_id}">${food.food_name} (<fmt:formatNumber value="${food.calories}" minFractionDigits="2" maxFractionDigits="2" /> calo)</option>
                         </c:forEach>
                     </select>
                 </div>
@@ -121,7 +137,7 @@
             <button type="button" class="close-modal"><i class="fa-solid fa-xmark"></i></button>
             <h3>Thêm món vào bữa ăn</h3>
             <form method="post" action="${pageContext.request.contextPath}/meal_plan">
-                <input type="hidden" name="action" value="addMealFood">
+                <input type="hidden" name="action" value="addMealFoods">
                 <input type="hidden" name="selectedDate" value="${selectedDate}">
 
                 <div class="form-group">
@@ -135,11 +151,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Món ăn</label>
-                    <select name="foodId" required>
-                        <option value="">-- Chọn món ăn --</option>
+                    <label>Món ăn (có thể chọn nhiều)</label>
+                    <select name="foodIds" multiple required size="8" class="multi-select">
                         <c:forEach var="food" items="${allFoods}">
-                            <option value="${food.food_id}">${food.food_name} (${food.calories} calo)</option>
+                            <option value="${food.food_id}">${food.food_name} (<fmt:formatNumber value="${food.calories}" minFractionDigits="2" maxFractionDigits="2" /> calo)</option>
                         </c:forEach>
                     </select>
                 </div>

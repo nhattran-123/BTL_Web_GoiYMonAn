@@ -1,42 +1,42 @@
 package com.model.bean;
 
 public class MenuDetail {
-    private int detailId;
-    private int menuId;
-    private int foodId;
-    private int mealTypeId;
+    private int Detail_id;
+    private int Menu_id;
+    private int Food_id;
+    private int Meal_type_id;
 
-    public int getDetailId() {
-        return detailId;
+    public int getDetail_id() {
+        return Detail_id;
     }
 
-    public int getMenuId() {
-        return menuId;
+    public int getMenu_id() {
+        return Menu_id;
     }
 
-    public int getFoodId() {
-        return foodId;
+    public int getFood_id() {
+        return Food_id;
     }
 
-    public int getMealTypeId() {
-        return mealTypeId;
+    public int getMeal_type_id() {
+        return Meal_type_id;
     }
 
-    // Getter Setter
-
-    public void setDetailId(int detailId) {
-        this.detailId = detailId;
+    public void setDetail_id(int Detail_id) {
+        this.Detail_id = Detail_id;
     }
 
-    public void setMenuId(int menuId) {
-        this.menuId = menuId;
+    public void setMenu_id(int Menu_id) {
+        this.Menu_id = Menu_id;
     }
 
-    public void setFoodId(int foodId) {
-        this.foodId = foodId;
+    public void setFood_id(int Food_id) {
+        this.Food_id = Food_id;
     }
 
-    public void setMealTypeId(int mealTypeId) {
-        this.mealTypeId = mealTypeId;
+    public void setMeal_type_id(int Meal_type_id) {
+        this.Meal_type_id = Meal_type_id;
     }
+
+    
 }

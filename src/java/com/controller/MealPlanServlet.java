@@ -5,6 +5,7 @@ import com.model.dao.MealPlanDAO;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletException;
@@ -34,6 +35,7 @@ public class MealPlanServlet extends HttpServlet {
         request.setAttribute("mealSections", mealSections);
         request.setAttribute("totalCalories", totalCalories);
         request.setAttribute("allFoods", mealPlanDAO.getAllFoods());
+        request.setAttribute("weekSlider", mealPlanDAO.getWeekSlider(currentUser.getId(), selectedDate));
         request.getRequestDispatcher("/views/auth/meal_plan.jsp").forward(request, response);
     }
 
@@ -53,6 +55,19 @@ public class MealPlanServlet extends HttpServlet {
             int foodId = parseInt(request.getParameter("foodId"));
             if (mealTypeId > 0 && foodId > 0) {
                 mealPlanDAO.addMealFood(currentUser.getId(), selectedDate, mealTypeId, foodId);
+            }
+        } else if ("addMealFoods".equals(action)) {
+            int mealTypeId = parseInt(request.getParameter("mealTypeId"));
+            String[] foodIds = request.getParameterValues("foodIds");
+            if (mealTypeId > 0 && foodIds != null && foodIds.length > 0) {
+                List<Integer> parsedFoodIds = new ArrayList<>();
+                for (String id : foodIds) {
+                    int v = parseInt(id);
+                    if (v > 0) {
+                        parsedFoodIds.add(v);
+                    }
+                }
+                mealPlanDAO.addMealFoods(currentUser.getId(), selectedDate, mealTypeId, parsedFoodIds);
             }
         } else if ("removeDetail".equals(action)) {
             int detailId = parseInt(request.getParameter("detailId"));
