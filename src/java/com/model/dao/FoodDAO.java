@@ -27,19 +27,19 @@ public class FoodDAO {
             ps.setInt(1, foodId);
             try (java.sql.ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    // 2. ĐÃ SỬA: Lấy id từ ResultSet
+                    //  Lấy id từ ResultSet
                     int id = rs.getInt("Ingredient_id");
                     String name = rs.getString("Ingredient_name");
                     double qty = rs.getDouble("Quantity");
                     String unit = rs.getString("Unit");
                     
-                    // 3. ĐÃ SỬA: Lấy chuẩn xác theo tên AS trong câu SQL
+                    //Lấy chuẩn xác theo tên AS trong câu SQL
                     double caloPerGram = rs.getDouble("caloPerGram");
                     double fatPerGram = rs.getDouble("fatPerGram");
                     double proteinPerGram = rs.getDouble("proteinPerGram");
                     double carbsPerGram = rs.getDouble("carbsPerGram");
                     
-                    // 4. ĐÃ SỬA: Truyền biến 'id' vào vị trí đầu tiên của Constructor
+                    //  Truyền biến 'id' vào vị trí đầu tiên của Constructor
                     list.add(new com.model.bean.IngredientItem(id, name, qty, unit, caloPerGram, fatPerGram, proteinPerGram, carbsPerGram));
                 }
             }
@@ -48,7 +48,38 @@ public class FoodDAO {
         }
         return list;
     }
-    
+    // Lấy danh sách món ăn an toàn (không chứa nguyên liệu dị ứng)
+    public List<Food> getSafeFoodsForUser(int userId) {
+        List<Food> safeFoodList = new ArrayList<>();
+        
+        String query = "SELECT f.* FROM Food f " +
+                       "WHERE f.Food_id NOT IN (" +
+                       "    SELECT fi.Food_id " +
+                       "    FROM Food_Ingredient fi " +
+                       "    INNER JOIN User_Allergy ua ON fi.Ingredient_id = ua.Ingredient_id " +
+                       "    WHERE ua.User_id = ?" +
+                       ")";
+                       
+        try (Connection conn =new  DBContext().getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(query)) {
+             
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Food food = new Food();
+                    food.setFood_id(rs.getInt("Food_id"));
+                    food.setFood_name(rs.getString("Food_name"));
+                    food.setDescription(rs.getString("description"));
+                    food.setImage_url(rs.getString("image_url"));
+                    food.setCalories(rs.getDouble("calories"));
+                    safeFoodList.add(food);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return safeFoodList;
+    }
     // Lấy danh sách tất cả món ăn
     public List<Food> getAllFoods() {
         List<Food> list = new ArrayList<>();
