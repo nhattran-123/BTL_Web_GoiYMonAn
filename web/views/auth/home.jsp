@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
-<!--    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/index.css">-->
 </head>
 <body>
 
@@ -52,7 +51,11 @@
                 <h1>Xin chào, Nguyen Van A</h1>
                 <p>Chúc bạn một ngày tốt lành!</p>
             </div>
-            <button class="btn-add"><i class="fa-solid fa-plus"></i> Thêm bữa ăn</button>
+            <a class="view-all" href="${pageContext.request.contextPath}/meal_plan">
+          <button class="btn-add">
+            <i class="fa-solid fa-plus"></i> Thêm bữa ăn
+          </button>
+        </a>
         </header>
 
         <section class="stats-grid">
@@ -105,7 +108,7 @@
         <section>
             <div class="section-header">
                 <h2>Bữa ăn hôm nay</h2>
-                <a href="#" class="view-all">Xem tất cả ></a>
+                <a href="{pageContext.request.contextPath}/meal_plan" class="view-all">Xem tất cả ></a>
             </div>
             <div class="meals-grid">
                 <div class="meal-card">
@@ -135,7 +138,7 @@
         <section>
             <div class="section-header">
                 <h2>Gợi ý cho bạn</h2>
-                <a href="#" class="view-all">Xem thêm ></a>
+                <a href="${pageContext.request.contextPath}/foods" class="view-all">Xem thêm ></a>
             </div>
             <div class="suggest-grid">
                 <div class="food-card">
