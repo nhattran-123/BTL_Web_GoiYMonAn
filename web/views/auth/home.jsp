@@ -33,7 +33,7 @@
                 </a>
             </li>
             <li class="nav-item"><a href="${pageContext.request.contextPath}/foods" class="nav-link"><i class="fa-solid fa-utensils"></i> Món ăn</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-regular fa-calendar-days"></i> Thực đơn</a></li>
+            <li class="nav-item"><a href="${pageContext.request.contextPath}/meal_plan" class="nav-link"><i class="fa-regular fa-calendar-days"></i> Thực đơn</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-chart-line"></i> Tiến trình</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fa-regular fa-heart"></i> Yêu thích</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</a></li>
@@ -108,7 +108,7 @@
         <section>
             <div class="section-header">
                 <h2>Bữa ăn hôm nay</h2>
-                <a href="{pageContext.request.contextPath}/meal_plan" class="view-all">Xem tất cả ></a>
+                <a href="${pageContext.request.contextPath}/meal_plan" class="view-all">Xem tất cả ></a>
             </div>
             <div class="meals-grid">
                 <div class="meal-card">
