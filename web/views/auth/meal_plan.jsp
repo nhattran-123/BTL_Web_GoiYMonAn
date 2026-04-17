@@ -69,7 +69,10 @@
 
         <section class="meal-list">
             <c:forEach var="section" items="${mealSections}">
-                <article class="card meal-card-item" data-meal-id="${section.mealTypeId}" data-meal-name="${section.mealName}">
+                <article class="card meal-card-item"
+                         data-meal-id="${section.mealTypeId}"
+                         data-meal-name="${section.mealName}"
+                         data-target-calories="${section.targetCalories}">
                     <div class="meal-row-head">
                         <div class="meal-title"><i class="fa-regular fa-sun"></i> ${section.mealName}</div>
                         <div class="meal-meta">
@@ -86,7 +89,7 @@
                         </c:when>
                         <c:otherwise>
                             <c:forEach var="food" items="${section.foods}">
-                                <div class="food-pill">
+                                <div class="food-pill" data-food-id="${food.foodId}" data-food-calories="${food.calories}" data-food-image="${food.imageUrl}">
                                     <img src="${pageContext.request.contextPath}/assets/images/${food.imageUrl}" alt="${food.foodName}">
                                     <div>
                                         <h4>${food.foodName}</h4>
@@ -112,21 +115,32 @@
     </main>
 
     <div class="modal" id="adjustModal">
-        <div class="modal-card">
+        <div class="modal-card adjust-modal-card">
             <button type="button" class="close-modal"><i class="fa-solid fa-xmark"></i></button>
             <h3 id="adjustTitle">Điều chỉnh món ăn</h3>
             <form method="post" action="${pageContext.request.contextPath}/meal_plan">
                 <input type="hidden" name="action" value="addMealFoods">
                 <input type="hidden" name="selectedDate" value="${selectedDate}">
                 <input type="hidden" id="adjustMealTypeId" name="mealTypeId">
-                <div class="form-group">
-                    <label>Chọn nhiều món ăn (giữ Ctrl/Cmd để chọn nhiều)</label>
-                    <select name="foodIds" multiple required size="8" class="multi-select">
-                        <c:forEach var="food" items="${allFoods}">
-                            <option value="${food.food_id}">${food.food_name} (<fmt:formatNumber value="${food.calories}" minFractionDigits="2" maxFractionDigits="2" /> calo)</option>
-                        </c:forEach>
-                    </select>
+                <div class="adjust-search">
+                    <input id="adjustSearchInput" type="text" placeholder="Tìm kiếm món ăn...">
+                    <button id="adjustSearchBtn" type="button" aria-label="Tìm kiếm món ăn"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
+                <div id="adjustSearchResult" class="adjust-search-result" hidden></div>
+                <div class="adjust-selected-header">
+                    <h4>Món ăn đã chọn</h4>
+                    <span id="adjustCaloriesMeta">0 / 0 calo</span>
+                </div>
+                <div id="adjustSelectedList" class="adjust-selected-list"></div>
+                <div id="adjustHiddenInputs"></div>
+                <select id="adjustFoodSource" hidden>
+                    <c:forEach var="food" items="${allFoods}">
+                        <option value="${food.food_id}"
+                                data-name="<c:out value='${food.food_name}'/>"
+                                data-calories="${food.calories}"
+                                data-image="<c:out value='${food.imageUrl}'/>"></option>
+                    </c:forEach>
+                </select>
                 <button class="btn-save" type="submit"><i class="fa-regular fa-floppy-disk"></i> Lưu thay đổi</button>
             </form>
         </div>
@@ -169,28 +183,172 @@
     <script>
         const adjustModal = document.getElementById('adjustModal');
         const addModal = document.getElementById('addModal');
+        const openAddMealBtn = document.getElementById('openAddMeal');
+        const adjustSearchBtn = document.getElementById('adjustSearchBtn');
         const adjustTitle = document.getElementById('adjustTitle');
         const adjustMealTypeId = document.getElementById('adjustMealTypeId');
+        const adjustSearchInput = document.getElementById('adjustSearchInput');
+        const adjustSearchResult = document.getElementById('adjustSearchResult');
+        const adjustSelectedList = document.getElementById('adjustSelectedList');
+        const adjustCaloriesMeta = document.getElementById('adjustCaloriesMeta');
+        const adjustHiddenInputs = document.getElementById('adjustHiddenInputs');
+        const adjustForm = adjustModal ? adjustModal.querySelector('form') : null;
+
+        const allFoods = Array.from(document.querySelectorAll('#adjustFoodSource option')).map((option) => ({
+            id: Number(option.value),
+            name: option.dataset.name || '',
+            calories: Number(option.dataset.calories || 0),
+            image: option.dataset.image || ''
+        }));
+
+        let selectedFoods = [];
+        let currentTargetCalories = 0;
+
+        const renderSelectedFoods = () => {
+            adjustSelectedList.innerHTML = '';
+
+            if (selectedFoods.length === 0) {
+                adjustSelectedList.innerHTML = '<p class="empty-text">Chưa có món nào được chọn.</p>';
+            } else {
+                selectedFoods.forEach((food) => {
+                    const item = document.createElement('div');
+                    item.className = 'food-pill';
+                    item.innerHTML =
+                        '<img src="${pageContext.request.contextPath}/assets/images/' + food.image + '" alt="' + food.name + '">' +
+                        '<div>' +
+                            '<h4>' + food.name + '</h4>' +
+                            '<p>' + Number(food.calories).toFixed(2) + ' calo</p>' +
+                        '</div>' +
+                        '<button type="button" class="remove-btn" data-remove-id="' + food.id + '" title="Xóa món">x</button>';
+                    adjustSelectedList.appendChild(item);
+                });
+            }
+
+            const totalCalories = selectedFoods.reduce((sum, food) => sum + Number(food.calories), 0);
+            adjustCaloriesMeta.textContent = totalCalories.toFixed(2) + ' / ' + Number(currentTargetCalories).toFixed(2) + ' calo';
+
+            adjustHiddenInputs.innerHTML = selectedFoods
+                .map((food) => '<input type="hidden" name="foodIds" value="' + food.id + '">')
+                .join('');
+        };
+
+        const renderSearchResult = (keyword = '') => {
+            const normalized = keyword.trim().toLowerCase();
+            const selectedIds = new Set(selectedFoods.map((food) => Number(food.id)));
+            const matchedFoods = allFoods
+                .filter((food) => {
+                    const notSelected = !selectedIds.has(Number(food.id));
+                    if (!notSelected) return false;
+                    if (!normalized) return true;
+                    return food.name.toLowerCase().includes(normalized);
+                })
+                .slice(0, 6);
+
+            if (matchedFoods.length === 0) {
+                adjustSearchResult.hidden = false;
+                adjustSearchResult.innerHTML = '<p class="empty-text">Không tìm thấy món phù hợp.</p>';
+                return;
+            }
+
+            adjustSearchResult.hidden = false;
+            adjustSearchResult.innerHTML = matchedFoods.map((food) =>
+                '<button type="button" class="search-food-item" data-food-id="' + food.id + '">' +
+                    '<span>' + food.name + '</span>' +
+                    '<small>' + Number(food.calories).toFixed(2) + ' calo</small>' +
+                '</button>'
+            ).join('');
+        };
 
         document.querySelectorAll('.open-adjust').forEach((btn) => {
             btn.addEventListener('click', (e) => {
+                if (!adjustModal) return;
                 const card = e.target.closest('.meal-card-item');
                 adjustMealTypeId.value = card.dataset.mealId;
                 adjustTitle.textContent = 'Điều chỉnh món ăn cho ' + card.dataset.mealName.toLowerCase();
+                currentTargetCalories = card.dataset.targetCalories || 0;
+
+                selectedFoods = Array.from(card.querySelectorAll('.food-pill')).map((pill) => {
+                    const id = Number(pill.dataset.foodId);
+                    return {
+                        id,
+                        name: pill.querySelector('h4')?.textContent?.trim() || '',
+                        calories: Number(pill.dataset.foodCalories || 0),
+                        image: pill.dataset.foodImage || ''
+                    };
+                });
+
+                adjustSearchInput.value = '';
+                adjustSearchResult.hidden = true;
+                adjustSearchResult.innerHTML = '';
+                renderSelectedFoods();
+                renderSearchResult();
                 adjustModal.classList.add('show');
             });
         });
 
-        document.getElementById('openAddMeal').addEventListener('click', () => addModal.classList.add('show'));
+        if (openAddMealBtn && addModal) {
+            openAddMealBtn.addEventListener('click', () => addModal.classList.add('show'));
+        }
         document.querySelectorAll('.close-modal').forEach((btn) => {
             btn.addEventListener('click', () => btn.closest('.modal').classList.remove('show'));
         });
 
-        [adjustModal, addModal].forEach((modal) => {
+        [adjustModal, addModal].filter(Boolean).forEach((modal) => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) modal.classList.remove('show');
             });
         });
+
+        if (adjustSearchBtn) {
+            adjustSearchBtn.addEventListener('click', () => {
+                renderSearchResult(adjustSearchInput.value);
+            });
+        }
+
+        if (adjustSearchInput) {
+            adjustSearchInput.addEventListener('input', () => {
+                renderSearchResult(adjustSearchInput.value);
+            });
+            adjustSearchInput.addEventListener('focus', () => {
+                renderSearchResult(adjustSearchInput.value);
+            });
+        }
+
+        if (adjustSearchResult) {
+            adjustSearchResult.addEventListener('click', (e) => {
+                const btn = e.target.closest('.search-food-item');
+                if (!btn) return;
+                const selectedId = Number(btn.dataset.foodId);
+                const food = allFoods.find((item) => Number(item.id) === selectedId);
+                if (!food) return;
+                if (!selectedFoods.some((item) => Number(item.id) === selectedId)) {
+                    selectedFoods.push(food);
+                    renderSelectedFoods();
+                }
+                adjustSearchInput.value = '';
+                adjustSearchResult.hidden = true;
+                adjustSearchResult.innerHTML = '';
+            });
+        }
+
+        if (adjustSelectedList) {
+            adjustSelectedList.addEventListener('click', (e) => {
+                const removeBtn = e.target.closest('[data-remove-id]');
+                if (!removeBtn) return;
+                const removeId = Number(removeBtn.dataset.removeId);
+                selectedFoods = selectedFoods.filter((food) => Number(food.id) !== removeId);
+                renderSelectedFoods();
+            });
+        }
+
+        if (adjustForm) {
+            adjustForm.addEventListener('submit', (e) => {
+                if (selectedFoods.length === 0) {
+                    e.preventDefault();
+                    alert('Vui lòng chọn ít nhất một món ăn.');
+                }
+            });
+        }
     </script>
 </body>
 </html>
