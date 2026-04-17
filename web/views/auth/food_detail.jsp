@@ -11,7 +11,7 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/index.css">
+<!--    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/index.css">-->
     
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/food_detail.css">
 </head>
@@ -49,7 +49,7 @@
         
         <div class="action-bar">
             <button class="btn btn-like"><i class="fa-regular fa-heart"></i> Thích</button>
-            <button class="btn btn-add"><i class="fa-solid fa-plus"></i> Thêm vào thực đơn</button>
+            <a class="view-all" href="${pageContext.request.contextPath}/meal_plan">  <button class="btn btn-add"><i class="fa-solid fa-plus"></i> Thêm vào thực đơn</button> </a>
         </div>
 
         <div class="section">
