@@ -41,6 +41,7 @@
 .modal-card { width:420px; background:#fff; border-radius:12px; padding:24px; position:relative; }
 .modal-card h3 { text-align:center; margin:8px 0 18px; font-size:20px; }
 .close-modal { position:absolute; top:12px; right:12px; border:none; background:transparent; cursor:pointer; font-size:16px; }
+.adjust-modal-card { width:500px; max-height:88vh; overflow-y:auto; }
 
 .form-group { margin-bottom:12px; }
 .form-group label { display:block; font-size:13px; margin-bottom:6px; color:#374151; }
@@ -50,3 +51,17 @@
 .btn-save { background:#16a34a; color:#fff; display:block; margin:0 auto; min-width:120px; }
 .btn-secondary { background:#16a34a; color:#fff; }
 .actions-row { display:flex; justify-content:flex-end; }
+
+.adjust-search { display:flex; align-items:center; border:1px solid #bbf7d0; border-radius:12px; padding:0 8px 0 12px; margin-bottom:12px; }
+.adjust-search input { width:100%; border:none; outline:none; background:transparent; padding:11px 0; font-size:14px; }
+.adjust-search button { border:none; background:transparent; color:#111827; cursor:pointer; width:34px; height:34px; border-radius:8px; }
+.adjust-search-result { border:1px solid #e5e7eb; border-radius:10px; padding:8px; margin-bottom:14px; background:#fff; max-height:170px; overflow-y:auto; }
+.search-food-item { width:100%; border:none; background:#f9fafb; border-radius:8px; padding:8px 10px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; font-size:13px; }
+.search-food-item:last-child { margin-bottom:0; }
+.search-food-item small { color:#6b7280; }
+
+.adjust-selected-header { display:flex; align-items:center; justify-content:space-between; margin:4px 0 10px; }
+.adjust-selected-header h4 { margin:0; font-size:30px; font-weight:700; }
+.adjust-selected-header span { font-size:15px; color:#1f2937; }
+.adjust-selected-list { min-height:170px; margin-bottom:24px; }
+.adjust-selected-list .food-pill { margin-bottom:8px; }

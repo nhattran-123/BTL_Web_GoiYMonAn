@@ -42,6 +42,7 @@ public class MealPlanServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+         request.setCharacterEncoding("UTF-8");
         User currentUser = requireAuth(request, response);
         if (currentUser == null) {
             return;
@@ -69,7 +70,22 @@ public class MealPlanServlet extends HttpServlet {
                 }
                 mealPlanDAO.addMealFoods(currentUser.getId(), selectedDate, mealTypeId, parsedFoodIds);
             }
-        } else if ("removeDetail".equals(action)) {
+        } else if ("updateMealFoods".equals(action)) {
+            int mealTypeId = parseInt(request.getParameter("mealTypeId"));
+            String[] foodIds = request.getParameterValues("foodIds");
+            List<Integer> parsedFoodIds = new ArrayList<>();
+            if (foodIds != null) {
+                for (String id : foodIds) {
+                    int v = parseInt(id);
+                    if (v > 0) {
+                        parsedFoodIds.add(v);
+                    }
+                }
+            }
+            if (mealTypeId > 0) {
+                mealPlanDAO.updateMealFoods(currentUser.getId(), selectedDate, mealTypeId, parsedFoodIds);
+            }
+        }else if ("removeDetail".equals(action)) {
             int detailId = parseInt(request.getParameter("detailId"));
             if (detailId > 0) {
                 mealPlanDAO.deleteMealDetail(detailId);

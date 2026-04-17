@@ -48,7 +48,7 @@
         
         <header class="top-header">
             <div class="greeting">
-                <h1>Xin chào, Nguyen Van A</h1>
+                <h1>Xin chào,${sessionScope.currentUser.fullName}</h1>
                 <p>Chúc bạn một ngày tốt lành!</p>
             </div>
             <a class="view-all" href="${pageContext.request.contextPath}/meal_plan">

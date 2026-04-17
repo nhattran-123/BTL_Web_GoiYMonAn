@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/meal_plan.css">
+     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
 <body>
     <aside class="sidebar">
@@ -69,7 +72,7 @@
 
         <section class="meal-list">
             <c:forEach var="section" items="${mealSections}">
-                <article class="card meal-card-item" data-meal-id="${section.mealTypeId}" data-meal-name="${section.mealName}">
+                <article class="card meal-card-item" data-meal-id="${section.mealTypeId}" data-meal-name="${section.mealName}" data-selected-food-ids="<c:forEach var='food' items='${section.foods}' varStatus='loop'>${food.foodId}<c:if test='${!loop.last}'>,</c:if></c:forEach>">
                     <div class="meal-row-head">
                         <div class="meal-title"><i class="fa-regular fa-sun"></i> ${section.mealName}</div>
                         <div class="meal-meta">
@@ -106,9 +109,7 @@
             </c:forEach>
         </section>
 
-        <div class="add-wrapper">
-            <button id="openAddMeal" class="btn-add"><i class="fa-solid fa-plus"></i> Thêm bữa ăn</button>
-        </div>
+        
     </main>
 
     <div class="modal" id="adjustModal">
@@ -116,12 +117,12 @@
             <button type="button" class="close-modal"><i class="fa-solid fa-xmark"></i></button>
             <h3 id="adjustTitle">Điều chỉnh món ăn</h3>
             <form method="post" action="${pageContext.request.contextPath}/meal_plan">
-                <input type="hidden" name="action" value="addMealFoods">
+                   <input type="hidden" name="action" value="updateMealFoods">
                 <input type="hidden" name="selectedDate" value="${selectedDate}">
                 <input type="hidden" id="adjustMealTypeId" name="mealTypeId">
                 <div class="form-group">
-                    <label>Chọn nhiều món ăn (giữ Ctrl/Cmd để chọn nhiều)</label>
-                    <select name="foodIds" multiple required size="8" class="multi-select">
+                    <label>Chọn món ăn</label>
+                    <select id="adjustFoodIds" name="foodIds" multiple size="8" class="multi-select searchable-dropdown">
                         <c:forEach var="food" items="${allFoods}">
                             <option value="${food.food_id}">${food.food_name} (<fmt:formatNumber value="${food.calories}" minFractionDigits="2" maxFractionDigits="2" /> calo)</option>
                         </c:forEach>
@@ -131,53 +132,41 @@
             </form>
         </div>
     </div>
-
-    <div class="modal" id="addModal">
-        <div class="modal-card">
-            <button type="button" class="close-modal"><i class="fa-solid fa-xmark"></i></button>
-            <h3>Thêm món vào bữa ăn</h3>
-            <form method="post" action="${pageContext.request.contextPath}/meal_plan">
-                <input type="hidden" name="action" value="addMealFoods">
-                <input type="hidden" name="selectedDate" value="${selectedDate}">
-
-                <div class="form-group">
-                    <label>Bữa ăn</label>
-                    <select name="mealTypeId" required>
-                        <option value="">-- Chọn bữa ăn --</option>
-                        <c:forEach var="section" items="${mealSections}">
-                            <option value="${section.mealTypeId}">${section.mealName}</option>
-                        </c:forEach>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Món ăn (có thể chọn nhiều)</label>
-                    <select name="foodIds" multiple required size="8" class="multi-select">
-                        <c:forEach var="food" items="${allFoods}">
-                            <option value="${food.food_id}">${food.food_name} (<fmt:formatNumber value="${food.calories}" minFractionDigits="2" maxFractionDigits="2" /> calo)</option>
-                        </c:forEach>
-                    </select>
-                </div>
-
-                <div class="actions-row">
-                    <button class="btn-save" type="submit">Lưu bữa ăn</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
         const adjustModal = document.getElementById('adjustModal');
         const addModal = document.getElementById('addModal');
         const adjustTitle = document.getElementById('adjustTitle');
         const adjustMealTypeId = document.getElementById('adjustMealTypeId');
 
+const adjustFoodIds = document.getElementById('adjustFoodIds');
+
+        $(document).ready(function() {
+            $('.searchable-dropdown').select2({
+                placeholder: "Gõ để tìm món ăn...",
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: function() {
+                        return "Không tìm thấy món ăn phù hợp";
+                    }
+                }
+            });
+        });
+        
         document.querySelectorAll('.open-adjust').forEach((btn) => {
             btn.addEventListener('click', (e) => {
                 const card = e.target.closest('.meal-card-item');
                 adjustMealTypeId.value = card.dataset.mealId;
                 adjustTitle.textContent = 'Điều chỉnh món ăn cho ' + card.dataset.mealName.toLowerCase();
-                adjustModal.classList.add('show');
+               const selectedIds = (card.dataset.selectedFoodIds || '')
+                        .split(',')
+                        .map(id => id.trim())
+                        .filter(Boolean);
+                for (const option of adjustFoodIds.options) {
+                    option.selected = selectedIds.includes(option.value);
+                }
+                $('#adjustFoodIds').trigger('change'); 
+            adjustModal.classList.add('show');
             });
         });
 

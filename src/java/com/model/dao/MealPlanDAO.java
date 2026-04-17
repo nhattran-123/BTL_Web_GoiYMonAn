@@ -246,7 +246,45 @@ public class MealPlanDAO {
 
         updateMenuCalories(menuId);
     }
+    public void updateMealFoods(int userId, LocalDate date, int mealTypeId, List<Integer> foodIds) {
+        Integer menuId = getMenuIdByDate(userId, date);
+        if (menuId == null) {
+            menuId = createMenu(userId, date);
+        }
+        if (menuId == null || menuId <= 0) {
+            return;
+        }
 
+        String sqlDelete = "DELETE FROM Menu_Detail WHERE Menu_id = ? AND Meal_type_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sqlDelete)) {
+            ps.setInt(1, menuId);
+            ps.setInt(2, mealTypeId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (foodIds != null && !foodIds.isEmpty()) {
+            String sqlInsert = "INSERT INTO Menu_Detail(Menu_id, Food_id, Meal_type_id) VALUES (?, ?, ?)";
+            try (Connection conn = new DBContext().getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sqlInsert)) {
+                for (Integer foodId : foodIds) {
+                    if (foodId != null && foodId > 0) {
+                        ps.setInt(1, menuId);
+                        ps.setInt(2, foodId);
+                        ps.setInt(3, mealTypeId);
+                        ps.addBatch();
+                    }
+                }
+                ps.executeBatch();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        updateMenuCalories(menuId);
+    }
     public void deleteMealDetail(int detailId) {
         String findSql = "SELECT Menu_id FROM Menu_Detail WHERE Detail_id = ?";
         Integer menuId = null;
