@@ -37,7 +37,11 @@
                 </a>
             </li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-heart-pulse"></i> Quản lý bệnh lý</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-gear"></i> Cài đặt</a></li>
+            <li class="nav-item">
+                <a href="${pageContext.request.contextPath}/admin/settings.jsp" class="nav-link">
+                    <i class="fa-solid fa-gear"></i> Cài đặt
+                </a>
+            </li>
         </ul>
         <div class="logout-box">
             <a href="${pageContext.request.contextPath}/logout" class="nav-link">
