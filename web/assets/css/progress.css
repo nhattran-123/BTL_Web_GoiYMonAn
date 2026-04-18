@@ -88,6 +88,10 @@
     background: #22c55e;
 }
 
+.height-progress-fill {
+    background: #16a34a;
+}
+
 .goal-meta {
     display: flex;
     justify-content: space-between;
@@ -132,3 +136,82 @@
     color: var(--primary-green);
 }
 
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.08);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-overlay[hidden] {
+    display: none !important;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-card {
+    width:420px; background:#fff; border-radius:12px; padding:24px; position:relative;
+}
+
+.modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.modal-head h3 {
+    font-size: 13px;
+    width: 100%;
+    text-align: center;
+}
+
+.modal-close {
+    border: none;
+    background: transparent;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.modal-form {
+    max-width: 220px;
+    margin: 0 auto;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 13px;
+    color: #334155;
+}
+
+.form-group input {
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid #c7e7d2;
+    background: #fff;
+    padding: 0 10px;
+    font-size: 14px;
+}
+
+.btn-save {
+    margin: 10px auto 0;
+    display: block;
+    border: none;
+    background: var(--primary-green);
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-weight: 600;
+    cursor: pointer;
+}

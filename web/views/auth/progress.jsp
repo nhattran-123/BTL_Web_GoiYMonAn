@@ -47,9 +47,7 @@
                 <h1>Tiến trình</h1>
                 <p>Theo dõi quá trình sức khỏe của bạn.</p>
             </div>
-            <button class="btn-update" type="button">
-                <i class="fa-solid fa-plus"></i> Cập nhật chỉ số
-            </button>
+           <button class="btn-update" id="openUpdateModalBtn" type="button">Cập nhật chỉ số</button>
         </header>
 
         <section class="stats-grid">
@@ -85,6 +83,20 @@
             </div>
         </section>
 
+         <section class="card">
+            <div class="section-head">
+                <h2>Tiến độ mục tiêu chiều cao</h2>
+                <span><fmt:formatNumber value="${heightProgressPercent}" maxFractionDigits="0" />%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill height-progress-fill" style="width: <fmt:formatNumber value='${heightProgressPercent}' maxFractionDigits='0'/>%;"></div>
+            </div>
+            <div class="goal-meta">
+                <span>Hiện tại: <fmt:formatNumber value="${sessionScope.currentUser.height}" maxFractionDigits="1" /> cm</span>
+                <span>Mục tiêu: <fmt:formatNumber value="${sessionScope.currentUser.desired_height}" maxFractionDigits="1" /> cm</span>
+            </div>
+        </section>
+            
         <section class="card">
             <div class="section-head">
                 <h2>Lịch sử ăn uống</h2>
@@ -120,6 +132,51 @@
             <p class="bmi-number"><fmt:formatNumber value="${bmi}" maxFractionDigits="2" /></p>
         </section>
     </main>
+        
+        <div class="modal-overlay" id="updateModalOverlay">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3>Cập nhật chỉ số hiện tại</h3>
+                <button type="button" class="modal-close" id="closeUpdateModalBtn">X</button>
+            </div>
+            <form action="${pageContext.request.contextPath}/progress" method="post">
+                <div class="form-group">
+                    <label for="currentHeight">Chiều cao hiện tại(cm):</label>
+                    <input id="currentHeight" type="number" min="1" step="0.1" name="current_height" value="${sessionScope.currentUser.height}" required>
+                </div>
+                <div class="form-group">
+                    <label for="currentWeight">Cân nặng hiện tại(kg):</label>
+                    <input id="currentWeight" type="number" min="1" step="0.1" name="current_weight" value="${sessionScope.currentUser.weight}" required>
+                </div>
+                <button class="btn-save" type="submit">
+                    <i class="fa-regular fa-floppy-disk"></i> Lưu thay đổi
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const openUpdateModalBtn = document.getElementById("openUpdateModalBtn");
+        const closeUpdateModalBtn = document.getElementById("closeUpdateModalBtn");
+        const updateModalOverlay = document.getElementById("updateModalOverlay");
+
+        function openUpdateModal() {
+            updateModalOverlay.classList.add("active");
+        }
+
+        function closeUpdateModal() {
+            updateModalOverlay.classList.remove("active");
+        }
+
+        openUpdateModalBtn.addEventListener("click", openUpdateModal);
+        closeUpdateModalBtn.addEventListener("click", closeUpdateModal);
+
+        updateModalOverlay.addEventListener("click", function (event) {
+            if (event.target === updateModalOverlay) {
+                closeUpdateModal();
+            }
+        });
+    </script>
 </body>
 </html>
 

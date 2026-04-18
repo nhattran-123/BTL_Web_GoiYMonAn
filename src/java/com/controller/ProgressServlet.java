@@ -11,6 +11,7 @@ package com.controller;
 
 import com.model.bean.User;
 import com.model.dao.MealPlanDAO;
+import com.model.dao.UserDAO;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpSession;
 public class ProgressServlet extends HttpServlet {
 
     private final MealPlanDAO mealPlanDAO = new MealPlanDAO();
+    private final UserDAO userDAO = new UserDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -42,6 +44,7 @@ public class ProgressServlet extends HttpServlet {
 
         double bmi = calculateBMI(currentUser.getWeight(), currentUser.getHeight());
         double progressPercent = calculateProgressPercent(currentUser.getWeight(), currentUser.getDesired_weight());
+        double heightProgressPercent = calculateProgressPercent(currentUser.getHeight(), currentUser.getDesired_height());
         String goalLabel = currentUser.getDesired_weight() < currentUser.getWeight() ? "Giảm cân" : "Tăng cân";
         int totalDaysFollowed = Math.max(1, recentMealHistory.size());
 
@@ -49,9 +52,35 @@ public class ProgressServlet extends HttpServlet {
         request.setAttribute("bmi", bmi);
         request.setAttribute("goalLabel", goalLabel);
         request.setAttribute("progressPercent", progressPercent);
+        request.setAttribute("heightProgressPercent", heightProgressPercent);
         request.setAttribute("recentMealHistory", recentMealHistory);
         request.setAttribute("totalDaysFollowed", totalDaysFollowed);
         request.getRequestDispatcher("/views/auth/progress.jsp").forward(request, response);
+    }
+    
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            response.sendRedirect(request.getContextPath() + "/views/auth/login.jsp");
+            return;
+        }
+
+        try {
+            float currentHeight = Float.parseFloat(request.getParameter("current_height"));
+            float currentWeight = Float.parseFloat(request.getParameter("current_weight"));
+
+            currentUser.setHeight(currentHeight);
+            currentUser.setWeight(currentWeight);
+            userDAO.updateHealthProfile(currentUser);
+            session.setAttribute("currentUser", currentUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        response.sendRedirect(request.getContextPath() + "/progress");
     }
 
     private double calculateBMI(double weightKg, double heightCm) {
