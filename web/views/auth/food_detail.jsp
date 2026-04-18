@@ -48,7 +48,7 @@
         <img src="${pageContext.request.contextPath}/assets/images/${food.image_url}" class="hero-image" onerror="this.src='https://via.placeholder.com/900x380?text=Food+Image'">
         
         <div class="action-bar">
-            <form method="post" action="${pageContext.request.contextPath}/food-detail" style="flex:1;">
+            <form method="post" action="${pageContext.request.contextPath}/food-detail" class="action-item">
                 <input type="hidden" name="action" value="favorite">
                 <input type="hidden" name="foodId" value="${food.food_id}">
                 <button class="btn btn-like ${isFavorite ? 'is-favorite' : ''}" type="submit" ${isFavorite ? 'disabled' : ''}>
@@ -56,7 +56,9 @@
                     ${isFavorite ? 'Đã yêu thích' : 'Thêm yêu thích'}
                 </button>
             </form>
-            <a class="view-all" href="${pageContext.request.contextPath}/meal_plan">  <button class="btn btn-add"><i class="fa-solid fa-plus"></i> Thêm vào thực đơn</button> </a>
+             <a class="btn btn-add action-item" href="${pageContext.request.contextPath}/meal_plan">
+                <i class="fa-solid fa-plus"></i> Thêm vào thực đơn
+            </a>
         </div>
 
         <div class="section">

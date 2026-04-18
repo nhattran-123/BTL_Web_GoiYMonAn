@@ -13,6 +13,10 @@
         <servlet-name>MealPlanServlet</servlet-name>
         <servlet-class>com.controller.MealPlanServlet</servlet-class>
     </servlet>
+     <servlet>
+        <servlet-name>FavoriteServlet</servlet-name>
+        <servlet-class>com.controller.FavoriteServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>MealPlanServlet</servlet-name>
         <url-pattern>/meal_plan</url-pattern>
@@ -20,6 +24,10 @@
     <servlet-mapping>
         <servlet-name>MealPlanServlet</servlet-name>
         <url-pattern>/meal-plan</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FavoriteServlet</servlet-name>
+        <url-pattern>/favorites</url-pattern>
     </servlet-mapping>
     
     <welcome-file-list>
