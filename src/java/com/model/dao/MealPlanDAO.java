@@ -314,6 +314,47 @@ public class MealPlanDAO {
             updateMenuCalories(menuId);
         }
     }
+    public boolean canEditMealDetail(int userId, int detailId) {
+        String sql = "SELECT dm.Menu_date "
+                + "FROM Menu_Detail md "
+                + "JOIN Daily_Menu dm ON md.Menu_id = dm.menu_id "
+                + "WHERE md.Detail_id = ? AND dm.User_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, detailId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Date menuDate = rs.getDate("Menu_date");
+                    return menuDate != null && !menuDate.toLocalDate().isBefore(LocalDate.now());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void archivePastMealsToHistory(int userId) {
+        String sql = "INSERT INTO User_History (user_id, food_id, eaten_at) "
+                + "SELECT dm.User_id, md.Food_id, dm.Menu_date "
+                + "FROM Daily_Menu dm "
+                + "JOIN Menu_Detail md ON dm.menu_id = md.Menu_id "
+                + "WHERE dm.User_id = ? AND dm.Menu_date < CURRENT_DATE "
+                + "AND NOT EXISTS ( "
+                + "    SELECT 1 FROM User_History uh "
+                + "    WHERE uh.user_id = dm.User_id "
+                + "      AND uh.food_id = md.Food_id "
+                + "      AND DATE(uh.eaten_at) = dm.Menu_date"
+                + ")";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private void updateMenuCalories(int menuId) {
         String sql = "UPDATE Daily_Menu dm "

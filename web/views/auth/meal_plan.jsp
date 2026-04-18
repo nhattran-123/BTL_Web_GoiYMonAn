@@ -44,6 +44,9 @@
             <div>
                 <h1>Thực đơn</h1>
                 <p>Dữ liệu hiển thị theo ngày bạn chọn từ cơ sở dữ liệu.</p>
+                <c:if test="${!canEditSelectedDate}">
+                    <p class="empty-text">Ngày đã qua chỉ xem được, không thể thêm/xóa món.</p>
+                </c:if>
             </div>
             <div class="calo-badge"><i class="fa-solid fa-fire-flame-curved"></i> <fmt:formatNumber value="${totalCalories}" minFractionDigits="2" maxFractionDigits="2" /> calo</div>
         </header>
@@ -79,7 +82,10 @@
                             <fmt:formatNumber value="${section.usedCalories}" minFractionDigits="2" maxFractionDigits="2" />
                             /
                             <fmt:formatNumber value="${section.targetCalories}" minFractionDigits="2" maxFractionDigits="2" /> calo
-                            <button type="button" class="text-btn open-adjust">Điều chỉnh</button>
+                           <c:if test="${canEditSelectedDate}">
+                                <button type="button" class="text-btn open-adjust">Điều chỉnh</button>
+                            </c:if>
+                        
                         </div>
                     </div>
 
@@ -95,12 +101,14 @@
                                         <h4>${food.foodName}</h4>
                                         <p><fmt:formatNumber value="${food.calories}" minFractionDigits="2" maxFractionDigits="2" /> calo</p>
                                     </div>
-                                    <form method="post" action="${pageContext.request.contextPath}/meal_plan" class="remove-form">
-                                        <input type="hidden" name="action" value="removeDetail">
-                                        <input type="hidden" name="selectedDate" value="${selectedDate}">
-                                        <input type="hidden" name="detailId" value="${food.detailId}">
-                                        <button type="submit" class="remove-btn" title="Xóa món">x</button>
-                                    </form>
+                                     <c:if test="${canEditSelectedDate}">
+                                        <form method="post" action="${pageContext.request.contextPath}/meal_plan" class="remove-form">
+                                            <input type="hidden" name="action" value="removeDetail">
+                                            <input type="hidden" name="selectedDate" value="${selectedDate}">
+                                            <input type="hidden" name="detailId" value="${food.detailId}">
+                                            <button type="submit" class="remove-btn" title="Xóa món">x</button>
+                                        </form>
+                                    </c:if>
                                 </div>
                             </c:forEach>
                         </c:otherwise>
@@ -112,34 +120,35 @@
         
     </main>
 
-    <div class="modal" id="adjustModal">
-        <div class="modal-card">
-            <button type="button" class="close-modal"><i class="fa-solid fa-xmark"></i></button>
-            <h3 id="adjustTitle">Điều chỉnh món ăn</h3>
-            <form method="post" action="${pageContext.request.contextPath}/meal_plan">
-                   <input type="hidden" name="action" value="updateMealFoods">
-                <input type="hidden" name="selectedDate" value="${selectedDate}">
-                <input type="hidden" id="adjustMealTypeId" name="mealTypeId">
-                <div class="form-group">
-                    <label>Chọn món ăn</label>
-                    <select id="adjustFoodIds" name="foodIds" multiple size="8" class="multi-select searchable-dropdown">
-                        <c:forEach var="food" items="${allFoods}">
-                            <option value="${food.food_id}">${food.food_name} (<fmt:formatNumber value="${food.calories}" minFractionDigits="2" maxFractionDigits="2" /> calo)</option>
-                        </c:forEach>
-                    </select>
-                </div>
-                <button class="btn-save" type="submit"><i class="fa-regular fa-floppy-disk"></i> Lưu thay đổi</button>
-            </form>
-        </div>
+    <c:if test="${canEditSelectedDate}">
+        <div class="modal" id="adjustModal">
+            <div class="modal-card">
+                <button type="button" class="close-modal"><i class="fa-solid fa-xmark"></i></button>
+                <h3 id="adjustTitle">Điều chỉnh món ăn</h3>
+                <form method="post" action="${pageContext.request.contextPath}/meal_plan">
+                    <input type="hidden" name="action" value="updateMealFoods">
+                    <input type="hidden" name="selectedDate" value="${selectedDate}">
+                    <input type="hidden" id="adjustMealTypeId" name="mealTypeId">
+                    <div class="form-group">
+                        <label>Chọn món ăn</label>
+                        <select id="adjustFoodIds" name="foodIds" multiple size="8" class="multi-select searchable-dropdown">
+                            <c:forEach var="food" items="${allFoods}">
+                                <option value="${food.food_id}">${food.food_name} (<fmt:formatNumber value="${food.calories}" minFractionDigits="2" maxFractionDigits="2" /> calo)</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    <button class="btn-save" type="submit"><i class="fa-regular fa-floppy-disk"></i> Lưu thay đổi</button>
+                </form>
+            </div>
     </div>
-    <script>
+                    </c:if>
+        <script>
+         const canEditSelectedDate = ${canEditSelectedDate};
         const adjustModal = document.getElementById('adjustModal');
         const addModal = document.getElementById('addModal');
         const adjustTitle = document.getElementById('adjustTitle');
         const adjustMealTypeId = document.getElementById('adjustMealTypeId');
-
-const adjustFoodIds = document.getElementById('adjustFoodIds');
-
+        const adjustFoodIds = document.getElementById('adjustFoodIds');
         $(document).ready(function() {
             $('.searchable-dropdown').select2({
                 placeholder: "Gõ để tìm món ăn...",
@@ -153,33 +162,34 @@ const adjustFoodIds = document.getElementById('adjustFoodIds');
             });
         });
         
-        document.querySelectorAll('.open-adjust').forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                const card = e.target.closest('.meal-card-item');
-                adjustMealTypeId.value = card.dataset.mealId;
-                adjustTitle.textContent = 'Điều chỉnh món ăn cho ' + card.dataset.mealName.toLowerCase();
-               const selectedIds = (card.dataset.selectedFoodIds || '')
-                        .split(',')
-                        .map(id => id.trim())
-                        .filter(Boolean);
-                for (const option of adjustFoodIds.options) {
-                    option.selected = selectedIds.includes(option.value);
-                }
-                $('#adjustFoodIds').trigger('change'); 
-            adjustModal.classList.add('show');
+         if (canEditSelectedDate) {
+            document.querySelectorAll('.open-adjust').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    const card = e.target.closest('.meal-card-item');
+                    adjustMealTypeId.value = card.dataset.mealId;
+                    adjustTitle.textContent = 'Điều chỉnh món ăn cho ' + card.dataset.mealName.toLowerCase();
+                    const selectedIds = (card.dataset.selectedFoodIds || '')
+                            .split(',')
+                            .map(id => id.trim())
+                            .filter(Boolean);
+                    for (const option of adjustFoodIds.options) {
+                        option.selected = selectedIds.includes(option.value);
+                    }
+                    $('#adjustFoodIds').trigger('change'); 
+                    adjustModal.classList.add('show');
+                });
             });
-        });
 
-        document.getElementById('openAddMeal').addEventListener('click', () => addModal.classList.add('show'));
-        document.querySelectorAll('.close-modal').forEach((btn) => {
-            btn.addEventListener('click', () => btn.closest('.modal').classList.remove('show'));
-        });
-
-        [adjustModal, addModal].forEach((modal) => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) modal.classList.remove('show');
+          document.querySelectorAll('.close-modal').forEach((btn) => {
+                btn.addEventListener('click', () => btn.closest('.modal').classList.remove('show'));
             });
-        });
+
+         [adjustModal].forEach((modal) => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.classList.remove('show');
+                });
+            });
+        }
     </script>
 </body>
 </html>

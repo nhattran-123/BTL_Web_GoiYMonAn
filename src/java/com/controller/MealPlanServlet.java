@@ -27,11 +27,16 @@ public class MealPlanServlet extends HttpServlet {
         }
 
         LocalDate selectedDate = parseSelectedDate(request.getParameter("date"));
+        
+         boolean canEditSelectedDate = !selectedDate.isBefore(LocalDate.now());
 
+        mealPlanDAO.archivePastMealsToHistory(currentUser.getId());
+        
         List<Map<String, Object>> mealSections = mealPlanDAO.getMealSections(currentUser.getId(), selectedDate);
         double totalCalories = mealPlanDAO.getTotalCalories(currentUser.getId(), selectedDate);
 
         request.setAttribute("selectedDate", selectedDate.toString());
+        request.setAttribute("canEditSelectedDate", canEditSelectedDate);
         request.setAttribute("mealSections", mealSections);
         request.setAttribute("totalCalories", totalCalories);
         request.setAttribute("allFoods", mealPlanDAO.getAllFoods());
@@ -50,7 +55,14 @@ public class MealPlanServlet extends HttpServlet {
 
         String action = request.getParameter("action");
         LocalDate selectedDate = parseSelectedDate(request.getParameter("selectedDate"));
+ boolean canEditSelectedDate = !selectedDate.isBefore(LocalDate.now());
 
+        mealPlanDAO.archivePastMealsToHistory(currentUser.getId());
+
+        if (!canEditSelectedDate) {
+            response.sendRedirect(request.getContextPath() + "/meal_plan?date=" + selectedDate);
+            return;
+        }
         if ("addMealFood".equals(action)) {
             int mealTypeId = parseInt(request.getParameter("mealTypeId"));
             int foodId = parseInt(request.getParameter("foodId"));
@@ -87,7 +99,7 @@ public class MealPlanServlet extends HttpServlet {
             }
         }else if ("removeDetail".equals(action)) {
             int detailId = parseInt(request.getParameter("detailId"));
-            if (detailId > 0) {
+             if (detailId > 0 && mealPlanDAO.canEditMealDetail(currentUser.getId(), detailId)) {
                 mealPlanDAO.deleteMealDetail(detailId);
             }
         }
