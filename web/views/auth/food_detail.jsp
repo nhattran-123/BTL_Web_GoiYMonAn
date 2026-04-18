@@ -48,10 +48,10 @@
         <img src="${pageContext.request.contextPath}/assets/images/${food.image_url}" class="hero-image" onerror="this.src='https://via.placeholder.com/900x380?text=Food+Image'">
         
         <div class="action-bar">
-            <form method="post" action="${pageContext.request.contextPath}/food-detail" class="action-item">
-                <input type="hidden" name="action" value="favorite">
+           <form method="post" action="${pageContext.request.contextPath}/food-detail" class="action-item">
+                <input type="hidden" name="action" value="${isFavorite ? 'unfavorite' : 'favorite'}">
                 <input type="hidden" name="foodId" value="${food.food_id}">
-                <button class="btn btn-like ${isFavorite ? 'is-favorite' : ''}" type="submit" ${isFavorite ? 'disabled' : ''}>
+                               <button class="btn btn-like ${isFavorite ? 'is-favorite' : ''}" type="submit">
                     <i class="${isFavorite ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
                     ${isFavorite ? 'Đã yêu thích' : 'Thêm yêu thích'}
                 </button>
@@ -119,6 +119,19 @@
         <script>
             setTimeout(function() {
                 var t = document.getElementById('toast');
+                if (t) {
+                    t.style.opacity = '0';
+                    setTimeout(function(){ t.style.display = 'none'; }, 400);
+                }
+                window.history.replaceState(null, null, window.location.pathname + '?id=${food.food_id}');
+            }, 2200);
+        </script>
+    </c:if>
+        <c:if test="${param.favoriteRemoved == 'true'}">
+        <div id="toast-removed" class="favorite-toast favorite-toast-neutral"><i class="fa-regular fa-heart"></i> Đã bỏ khỏi danh sách yêu thích.</div>
+        <script>
+            setTimeout(function() {
+                var t = document.getElementById('toast-removed');
                 if (t) {
                     t.style.opacity = '0';
                     setTimeout(function(){ t.style.display = 'none'; }, 400);

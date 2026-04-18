@@ -65,7 +65,7 @@ public class FoodDetailServlet extends HttpServlet {
         String action = request.getParameter("action");
         String foodIdRaw = request.getParameter("foodId");
 
-        if (!"favorite".equals(action) || foodIdRaw == null) {
+        if ( foodIdRaw == null) {
             response.sendRedirect(request.getContextPath() + "/foods");
             return;
         }
@@ -73,8 +73,19 @@ public class FoodDetailServlet extends HttpServlet {
         try {
             int foodId = Integer.parseInt(foodIdRaw);
             UserFavoriteDAO favoriteDAO = new UserFavoriteDAO();
-            favoriteDAO.addFavorite(currentUser.getId(), foodId);
-            response.sendRedirect(request.getContextPath() + "/food-detail?id=" + foodId + "&favoriteAdded=true");
+             if ("favorite".equals(action)) {
+                favoriteDAO.addFavorite(currentUser.getId(), foodId);
+                response.sendRedirect(request.getContextPath() + "/food-detail?id=" + foodId + "&favoriteAdded=true");
+                return;
+            }
+
+            if ("unfavorite".equals(action)) {
+                favoriteDAO.removeFavorite(currentUser.getId(), foodId);
+                response.sendRedirect(request.getContextPath() + "/food-detail?id=" + foodId + "&favoriteRemoved=true");
+                return;
+            }
+
+            response.sendRedirect(request.getContextPath() + "/foods");
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/foods");
         }

@@ -32,7 +32,43 @@ public class FavoriteServlet extends HttpServlet {
         }
 
         UserFavoriteDAO favoriteDAO = new UserFavoriteDAO();
-        request.setAttribute("favoriteFoods", favoriteDAO.getFavoritesByUser(currentUser.getId()));
+        String tab = request.getParameter("tab");
+        if (!"customized".equals(tab)) {
+            tab = "favorites";
+        }
+        String keyword = request.getParameter("q");
+
+        request.setAttribute("activeTab", tab);
+        request.setAttribute("keyword", keyword == null ? "" : keyword.trim());
+        request.setAttribute("favoriteFoods", favoriteDAO.getFavoritesByUser(currentUser.getId(), keyword));
+        request.setAttribute("customizedFoods", favoriteDAO.getCustomizedFoodsByUser(currentUser.getId(), keyword));
         request.getRequestDispatcher("/views/auth/favorites.jsp").forward(request, response);
+    }
+     @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("currentUser");
+
+        if (currentUser == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        String action = request.getParameter("action");
+        String foodIdRaw = request.getParameter("foodId");
+
+        if (!"remove".equals(action) || foodIdRaw == null) {
+            response.sendRedirect(request.getContextPath() + "/favorites");
+            return;
+        }
+
+        try {
+            int foodId = Integer.parseInt(foodIdRaw);
+            UserFavoriteDAO favoriteDAO = new UserFavoriteDAO();
+            favoriteDAO.removeFavorite(currentUser.getId(), foodId);
+            response.sendRedirect(request.getContextPath() + "/favorites?tab=favorites&removed=true");
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/favorites");
+        }
     }
 }
