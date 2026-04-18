@@ -109,3 +109,21 @@ body {
     font-size: 13px; 
     font-weight: 600; 
 }
+
+.btn-like.is-favorite { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+.btn-like.is-favorite:disabled { opacity: 1; cursor: default; }
+.favorite-toast {
+    position: fixed;
+    right: 28px;
+    bottom: 24px;
+    background: #dc2626;
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 10px;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.2);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    transition: opacity 0.4s ease;
+    z-index: 999;
+}

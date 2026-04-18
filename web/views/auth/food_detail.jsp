@@ -31,7 +31,7 @@
             <li class="nav-item"><a href="${pageContext.request.contextPath}/foods" class="nav-link active"><i class="fa-solid fa-utensils"></i> Món ăn</a></li>
             <li class="nav-item"><a href="${pageContext.request.contextPath}/meal_plan" class="nav-link"><i class="fa-regular fa-calendar-days"></i> Thực đơn</a></li>
             <li class="nav-item"><a href="${pageContext.request.contextPath}/progress" class="nav-link"><i class="fa-solid fa-chart-line"></i> Tiến trình</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-regular fa-heart"></i> Yêu thích</a></li>
+            <li class="nav-item"><a href="${pageContext.request.contextPath}/favorites" class="nav-link"><i class="fa-regular fa-heart"></i> Yêu thích</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</a></li>
             <li class="nav-item"><a href="${pageContext.request.contextPath}/settings" class="nav-link"><i class="fa-solid fa-gear"></i> Cài đặt</a></li>
         </ul>
@@ -48,7 +48,14 @@
         <img src="${pageContext.request.contextPath}/assets/images/${food.image_url}" class="hero-image" onerror="this.src='https://via.placeholder.com/900x380?text=Food+Image'">
         
         <div class="action-bar">
-            <button class="btn btn-like"><i class="fa-regular fa-heart"></i> Thích</button>
+            <form method="post" action="${pageContext.request.contextPath}/food-detail" style="flex:1;">
+                <input type="hidden" name="action" value="favorite">
+                <input type="hidden" name="foodId" value="${food.food_id}">
+                <button class="btn btn-like ${isFavorite ? 'is-favorite' : ''}" type="submit" ${isFavorite ? 'disabled' : ''}>
+                    <i class="${isFavorite ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                    ${isFavorite ? 'Đã yêu thích' : 'Thêm yêu thích'}
+                </button>
+            </form>
             <a class="view-all" href="${pageContext.request.contextPath}/meal_plan">  <button class="btn btn-add"><i class="fa-solid fa-plus"></i> Thêm vào thực đơn</button> </a>
         </div>
 
@@ -104,5 +111,20 @@
             <p style="white-space: pre-line; line-height: 1.8; color: #333;">${food.recipe}</p>
         </div>
     </main>
+        
+    <c:if test="${param.favoriteAdded == 'true'}">
+        <div id="toast" class="favorite-toast"><i class="fa-solid fa-heart"></i> Đã thêm vào món ăn yêu thích!</div>
+        <script>
+            setTimeout(function() {
+                var t = document.getElementById('toast');
+                if (t) {
+                    t.style.opacity = '0';
+                    setTimeout(function(){ t.style.display = 'none'; }, 400);
+                }
+                window.history.replaceState(null, null, window.location.pathname + '?id=${food.food_id}');
+            }, 2200);
+        </script>
+    </c:if>
+
 </body>
 </html>

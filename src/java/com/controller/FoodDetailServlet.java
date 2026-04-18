@@ -1,7 +1,9 @@
 package com.controller;
 
 import com.model.bean.Food;
+import com.model.bean.User;
 import com.model.dao.FoodDAO;
+import com.model.dao.UserFavoriteDAO;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,35 +15,36 @@ import javax.servlet.http.HttpSession;
 @WebServlet(name = "FoodDetailServlet", urlPatterns = {"/food-detail"})
 public class FoodDetailServlet extends HttpServlet {
     
+     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String idRaw = request.getParameter("id"); 
         
         
         HttpSession session = request.getSession();
-        com.model.bean.User currentUser = (com.model.bean.User) session.getAttribute("currentUser");
+        User currentUser = (User) session.getAttribute("currentUser");
 
-        // 2. Nếu chưa đăng nhập -> về trang login
         if (currentUser == null) {
             response.sendRedirect(request.getContextPath() + "/login");
-            return; // Dừng luôn, không cho chạy code bên dưới
+            return; 
         }
 
         // 3. Đã đăng nhập, lấy id user
-        int userId = currentUser.getId(); 
-        
         try {
             int foodId = Integer.parseInt(idRaw);
-            FoodDAO dao = new FoodDAO();
-            
-            Food food = dao.getFoodById(foodId);
-            java.util.List<com.model.bean.IngredientItem> ingredients = dao.getIngredientsByFoodId(foodId);
+            FoodDAO foodDAO = new FoodDAO();
+            UserFavoriteDAO favoriteDAO = new UserFavoriteDAO();
+            Food food = foodDAO.getFoodById(foodId);
+            java.util.List<com.model.bean.IngredientItem> ingredients = foodDAO.getIngredientsByFoodId(foodId);
             if (food == null) {
                 response.sendRedirect(request.getContextPath() + "/foods");
                 return;
             }
             
+            boolean isFavorite = favoriteDAO.isFavorite(currentUser.getId(), foodId);
+            
             request.setAttribute("food", food);
             request.setAttribute("ingredients", ingredients);
+            request.setAttribute("isFavorite", isFavorite);
             request.getRequestDispatcher("/views/auth/food_detail.jsp").forward(request, response);
             
         } catch (Exception e) {
@@ -49,4 +52,32 @@ public class FoodDetailServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/foods");
         }
     }
-}
+     @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("currentUser");
+
+        if (currentUser == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        String action = request.getParameter("action");
+        String foodIdRaw = request.getParameter("foodId");
+
+        if (!"favorite".equals(action) || foodIdRaw == null) {
+            response.sendRedirect(request.getContextPath() + "/foods");
+            return;
+        }
+
+        try {
+            int foodId = Integer.parseInt(foodIdRaw);
+            UserFavoriteDAO favoriteDAO = new UserFavoriteDAO();
+            favoriteDAO.addFavorite(currentUser.getId(), foodId);
+            response.sendRedirect(request.getContextPath() + "/food-detail?id=" + foodId + "&favoriteAdded=true");
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/foods");
+        }
+        }
+    }
+
