@@ -394,4 +394,48 @@ public class MealPlanDAO {
         }
         return list;
     }
+    public List<Map<String, Object>> getRecentMealHistory(int userId, int recentDays) {
+        List<Map<String, Object>> groupedHistory = new ArrayList<>();
+        if (recentDays <= 0) {
+            return groupedHistory;
+        }
+
+        String sql = "SELECT DATE(uh.eaten_at) AS eaten_date, f.Food_name, f.calories "
+                + "FROM User_History uh "
+                + "JOIN Food f ON uh.food_id = f.Food_id "
+                + "WHERE uh.user_id = ? "
+                + "ORDER BY DATE(uh.eaten_at) DESC, uh.eaten_at DESC";
+
+        LinkedHashMap<Date, List<Map<String, Object>>> byDate = new LinkedHashMap<>();
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Date eatenDate = rs.getDate("eaten_date");
+                    if (eatenDate == null) {
+                        continue;
+                    }
+                    if (!byDate.containsKey(eatenDate) && byDate.size() >= recentDays) {
+                        continue;
+                    }
+                    List<Map<String, Object>> foods = byDate.computeIfAbsent(eatenDate, k -> new ArrayList<>());
+                    Map<String, Object> food = new HashMap<>();
+                    food.put("foodName", rs.getString("Food_name"));
+                    food.put("calories", rs.getDouble("calories"));
+                    foods.add(food);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for (Map.Entry<Date, List<Map<String, Object>>> entry : byDate.entrySet()) {
+            Map<String, Object> dayHistory = new HashMap<>();
+            dayHistory.put("date", entry.getKey());
+            dayHistory.put("foods", entry.getValue());
+            groupedHistory.add(dayHistory);
+        }
+        return groupedHistory;
+    }
 }
