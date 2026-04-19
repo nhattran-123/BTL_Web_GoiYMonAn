@@ -165,5 +165,38 @@ public class FoodDAO {
         }
         return list;
     }
-   
+    // Lấy danh sách món ăn theo từ khóa tìm kiếm (Use Case của tôi)
+    public List<Food> searchFoodByName(String keyword) {
+        List<Food> list = new ArrayList<>();
+        // Lưu ý: Tùy database của nhóm mà 'Food' có phân biệt hoa thường hay không.
+        // Bạn cùng nhóm dùng 'food' ở getAllFoods và 'Food' ở getSafeFoods.
+        String sql = "SELECT * FROM Food WHERE Food_name LIKE ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Food f = new Food();
+                    f.setFood_id(rs.getInt("Food_id"));
+                    f.setFood_name(rs.getString("Food_name"));
+                    f.setDescription(rs.getString("description"));
+                    f.setImage_url(rs.getString("image_url"));
+                    f.setCalories(rs.getDouble("calories"));
+                    
+                    // Nếu Model Food của bạn có các trường này thì set, không thì có thể bỏ qua
+                    // vì danh sách tìm kiếm thường chỉ cần Tên, Ảnh, và Calo
+                    // f.setProtein(rs.getDouble("protein"));
+                    // f.setFat(rs.getDouble("fat"));
+                    // f.setCarbohydrate(rs.getDouble("carbohydrate"));
+
+                    list.add(f);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi tại searchFoodByName: " + e.getMessage());
+        }
+        return list;
+    }
 }

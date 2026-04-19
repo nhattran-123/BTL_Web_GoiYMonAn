@@ -9,7 +9,7 @@ public class DBContext {
     private final String dbName = "HealthyFoodDB"; 
     private final String portNumber = "3306";
     private final String userID = "root";       
-    private final String password = "123456"; 
+    private final String password = "Duy16112005@"; 
 
     public Connection getConnection() throws Exception {
         String url = "jdbc:mysql://" + serverName + ":" + portNumber + "/" + dbName;
