@@ -165,7 +165,7 @@ public class FoodDAO {
         }
         return list;
     }
-    // Lấy danh sách món ăn theo từ khóa tìm kiếm
+    // Lấy danh sách món ăn theo từ khóa tìm kiếm (Use Case của tôi)
     public List<Food> searchFoodByName(String keyword) {
         List<Food> list = new ArrayList<>();
         // Lưu ý: Tùy database của nhóm mà 'Food' có phân biệt hoa thường hay không.
