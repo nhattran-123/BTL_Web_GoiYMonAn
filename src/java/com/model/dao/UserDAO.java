@@ -6,7 +6,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserDAO {
 
@@ -88,7 +90,7 @@ public class UserDAO {
         } catch (Exception e) { return false; }
     }
 
-    // Lấy danh sách ID bệnh của User
+    // 5. Lấy danh sách ID bệnh của User
     public List<Integer> getDiseaseIdsByUserId(int userId) {
         List<Integer> list = new ArrayList<>();
         String query = "SELECT Disease_id FROM User_disease WHERE User_id = ?";
@@ -348,5 +350,36 @@ public class UserDAO {
             e.printStackTrace();
         }
         return false;
+    }
+    // Lay tong so nguoi dung
+    public int getTotalUsers() {
+        int count = 0;
+        String query = "SELECT COUNT(*) FROM Users";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) count = rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return count;
+    }
+       
+    // Tinh' % muc tieu pho bien
+    public Map<String, Double> getPopularGoals() {
+        Map<String, Double> map = new LinkedHashMap<>();
+        String query = "SELECT Goal_type, " +
+                       "(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM User_Goal)) AS percentage " +
+                       "FROM User_Goal " +
+                       "GROUP BY Goal_type " +
+                       "ORDER BY percentage DESC";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                if(rs.getString("Goal_type") != null) {
+                    map.put(rs.getString("Goal_type"), rs.getDouble("percentage"));
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return map;
     }
 }

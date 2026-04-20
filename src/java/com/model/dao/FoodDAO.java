@@ -199,4 +199,15 @@ public class FoodDAO {
         }
         return list;
     }
+    // Lay tonh so mon an
+    public int getTotalFoods() {
+        int count = 0;
+        String query = "SELECT COUNT(*) FROM Food";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) count = rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return count;
+    }
 }

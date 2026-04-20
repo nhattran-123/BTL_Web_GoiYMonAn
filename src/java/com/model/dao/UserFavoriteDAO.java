@@ -14,7 +14,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserFavoriteDAO {
 
@@ -151,6 +153,27 @@ public class UserFavoriteDAO {
         }
         String trimmed = keyword.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+    
+    
+    public Map<String, Integer> getTopFavoriteFoods(int limit) {
+        Map<String, Integer> map = new LinkedHashMap<>(); 
+        String query = "SELECT f.Food_name, COUNT(uf.food_id) AS total_likes " +
+                       "FROM User_Favorite uf " +
+                       "JOIN Food f ON uf.food_id = f.Food_id " +
+                       "GROUP BY uf.food_id, f.Food_name " +
+                       "ORDER BY total_likes DESC " +
+                       "LIMIT ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    map.put(rs.getString("Food_name"), rs.getInt("total_likes"));
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return map;
     }
 }
 
