@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
 <html lang="vi">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
@@ -61,12 +62,12 @@
                 <a href="food-detail?id=${food.food_id}" class="card">
                     <div class="card-img-wrapper">
                         <img src="${pageContext.request.contextPath}/assets/images/${food.image_url}" alt="${food.food_name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=No+Image'">
-                        <span class="badge-safe">✔ An toàn</span>
+                       <span class="badge-safe">${food.allergyConflictCount == 0 ? "✔ An toàn" : "⚠ Cân nhắc"}</span>
                     </div>
                     <div class="card-body">
                         <h3 class="card-title">${food.food_name}</h3>
                         <div class="card-calo">${food.displayCalories} calo</div>
-                        <div class="card-rating"><i class="fa-solid fa-star"></i> Phù hợp mục tiêu</div>
+                        <div class="card-rating"><i class="fa-solid fa-star"></i> <fmt:formatNumber value="${food.suitabilityScore}" maxFractionDigits="0"/>% phù hợp</div>
                     </div>
                 </a>
             </c:forEach>

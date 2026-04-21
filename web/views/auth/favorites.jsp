@@ -67,9 +67,9 @@
             <input type="hidden" name="tab" value="${activeTab}">
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" name="q" value="${keyword}" placeholder="Tìm kiếm món ăn bạn đã lưu...">
+                <input type="text" name="q" value="${keyword}" placeholder="Tìm kiếm món ăn...">
             </div>
-            <button type="submit" class="btn-filter"><i class="fa-solid fa-sliders"></i> Lọc</button>
+            <button type="submit" class="btn-filter"><i class="fa-solid fa-sliders"></i> Tìm Kiếm</button>
         </form>
         <c:if test="${param.removed == 'true'}">
             <div class="alert-success"><i class="fa-solid fa-check"></i> Đã xóa món khỏi mục yêu thích.</div>

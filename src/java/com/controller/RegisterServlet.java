@@ -56,6 +56,7 @@ request.setAttribute("listIngredient", ig);
         String heightStr = request.getParameter("height");
         String dWeightStr = request.getParameter("desired_weight");
         String dHeightStr = request.getParameter("desired_height");
+        String goalType = request.getParameter("goal");
         
         // 2. LẤY MẢNG BỆNH LÝ & DỊ ỨNG MÀ NGƯỜI DÙNG CHỌN
         String[] diseaseIds = request.getParameterValues("disease_id");
@@ -96,6 +97,7 @@ request.setAttribute("listIngredient", ig);
             // 4. LƯU TIẾP BỆNH VÀ DỊ ỨNG VỚI CÁI ID VỪA LẤY
             dao.addUserDiseases(newUserId, diseaseIds);
             dao.addUserAllergies(newUserId, allergyIds);
+            dao.addUserGoal(newUserId, goalType, estimateTargetCalories(gender, age, weight, height, goalType));
             
             request.setAttribute("success", "Đăng ký thành công! Vui lòng đăng nhập.");
             request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
@@ -103,5 +105,24 @@ request.setAttribute("listIngredient", ig);
             request.setAttribute("error", "Lỗi hệ thống khi đăng ký!");
             request.getRequestDispatcher("/views/auth/register.jsp").forward(request, response);
         }
+    }
+private double estimateTargetCalories(String gender, int age, float weight, float height, String goalType) {
+        if (age <= 0 || weight <= 0 || height <= 0) {
+            return 2000;
+        }
+        double bmr;
+        if ("Nam".equals(gender)) {
+            bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+        } else {
+            bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+        }
+        double tdee = bmr * 1.4;
+        if ("Giảm cân".equalsIgnoreCase(goalType)) {
+            return Math.max(1200, tdee - 300);
+        }
+        if ("Tăng cân".equalsIgnoreCase(goalType)) {
+            return tdee + 300;
+        }
+        return tdee;
     }
 }

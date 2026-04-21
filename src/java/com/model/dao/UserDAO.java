@@ -149,6 +149,107 @@ public class UserDAO {
             ps.executeBatch();
         } catch (Exception e) { e.printStackTrace(); }
     }
+    public void addUserGoal(int userId, String goalType, double targetCalories) {
+        String query = "INSERT INTO User_goal (User_id, Goal_type, target_calories) VALUES (?, ?, ?)";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ps.setString(2, goalType);
+            ps.setDouble(3, targetCalories);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean upsertUserGoal(int userId, String goalType, double targetCalories) {
+        String update = "UPDATE User_goal SET Goal_type = ?, target_calories = ? WHERE User_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(update)) {
+            ps.setString(1, goalType);
+            ps.setDouble(2, targetCalories);
+            ps.setInt(3, userId);
+            int updated = ps.executeUpdate();
+            if (updated > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        addUserGoal(userId, goalType, targetCalories);
+        return true;
+    }
+
+    public Map<String, Object> getLatestGoalByUserId(int userId) {
+        Map<String, Object> goal = new LinkedHashMap<>();
+        String query = "SELECT Goal_type, target_calories FROM User_goal WHERE User_id = ? ORDER BY Id DESC LIMIT 1";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    goal.put("goalType", rs.getString("Goal_type"));
+                    goal.put("targetCalories", rs.getDouble("target_calories"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return goal;
+    }
+
+    public Map<String, Double> getLatestHealthIndexByUserId(int userId) {
+        Map<String, Double> data = new LinkedHashMap<>();
+        String query = "SELECT bmi, bmr, tdee FROM Health_index WHERE user_id = ? ORDER BY calculated_at DESC, Id DESC LIMIT 1";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    data.put("bmi", rs.getDouble("bmi"));
+                    data.put("bmr", rs.getDouble("bmr"));
+                    data.put("tdee", rs.getDouble("tdee"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+    public void insertWeightHeightHistory(int userId, float weight, float height) {
+        String query = "INSERT INTO weight_height_history (User_id, Weight, Height, record_date) VALUES (?, ?, ?, NOW())";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ps.setFloat(2, weight);
+            ps.setFloat(3, height);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getActiveDaysByUserId(int userId) {
+        String query = "SELECT create_at FROM Users WHERE User_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    java.sql.Date createdAt = rs.getDate("create_at");
+                    if (createdAt == null) {
+                        return 1;
+                    }
+                    long days = java.time.temporal.ChronoUnit.DAYS.between(createdAt.toLocalDate(), java.time.LocalDate.now()) + 1;
+                    return (int) Math.max(1, days);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 1;
+    }
 
     public void updateDiseases(int userId, String[] diseaseIds) {
         try (Connection conn = new DBContext().getConnection()) {

@@ -22,9 +22,13 @@ public class FoodListServlet extends HttpServlet {
             FoodDAO foodDAO = new FoodDAO();
             List<Food> displayList;
 
-            
-                // Nếu đã đăng nhập -> Lọc món ăn theo dị ứng của user đó
-                displayList = foodDAO.getSafeFoodsForUser(user.getId());
+            if (user == null) {
+                response.sendRedirect(request.getContextPath() + "/views/auth/login.jsp");
+                return;
+            }
+
+            // Lấy tối đa 30 món phù hợp nhất dựa theo bệnh lý + dị ứng
+            displayList = foodDAO.getTopSuitableFoodsForUser(user.getId(), 30);
 
             // Gửi danh sách này sang JSP
             request.setAttribute("foodList", displayList);

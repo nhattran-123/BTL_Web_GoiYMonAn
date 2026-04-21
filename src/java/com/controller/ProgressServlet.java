@@ -46,7 +46,7 @@ public class ProgressServlet extends HttpServlet {
         double progressPercent = calculateProgressPercent(currentUser.getWeight(), currentUser.getDesired_weight());
         double heightProgressPercent = calculateProgressPercent(currentUser.getHeight(), currentUser.getDesired_height());
         String goalLabel = currentUser.getDesired_weight() < currentUser.getWeight() ? "Giảm cân" : "Tăng cân";
-        int totalDaysFollowed = Math.max(1, recentMealHistory.size());
+        int totalDaysFollowed = Math.max(1, userDAO.getActiveDaysByUserId(currentUser.getId()));
 
         request.setAttribute("todayCalories", mealPlanDAO.getTotalCalories(currentUser.getId(), LocalDate.now()));
         request.setAttribute("bmi", bmi);
@@ -76,6 +76,7 @@ public class ProgressServlet extends HttpServlet {
             currentUser.setHeight(currentHeight);
             currentUser.setWeight(currentWeight);
             userDAO.updateHealthProfile(currentUser);
+            userDAO.insertWeightHeightHistory(currentUser.getId(), currentWeight, currentHeight);
             session.setAttribute("currentUser", currentUser);
         } catch (Exception e) {
             e.printStackTrace();

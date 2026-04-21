@@ -10,6 +10,9 @@ public class Food {
     private double protein;
     private double fat;
     private double carbohydrate;
+    private double suitabilityScore;
+    private int allergyConflictCount;
+    private int diseaseMatchCount;
 
     // --- CÁC TRƯỜNG THÊM MỚI ---
     private boolean customized = false; // Mặc định là false (chưa tùy chỉnh)
@@ -36,7 +39,13 @@ public class Food {
     public void setFat(double fat) { this.fat = fat; }
     public double getCarbohydrate() { return carbohydrate; }
     public void setCarbohydrate(double carbohydrate) { this.carbohydrate = carbohydrate; }
-
+    public double getSuitabilityScore() { return suitabilityScore; }
+    public void setSuitabilityScore(double suitabilityScore) { this.suitabilityScore = suitabilityScore; }
+    public int getAllergyConflictCount() { return allergyConflictCount; }
+    public void setAllergyConflictCount(int allergyConflictCount) { this.allergyConflictCount = allergyConflictCount; }
+    public int getDiseaseMatchCount() { return diseaseMatchCount; }
+    public void setDiseaseMatchCount(int diseaseMatchCount) { this.diseaseMatchCount = diseaseMatchCount; }
+    
     // Getters/Setters cho trường thêm mới
     public boolean isCustomized() { return customized; }
     public void setCustomized(boolean customized) { this.customized = customized; }

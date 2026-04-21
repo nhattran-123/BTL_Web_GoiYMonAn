@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -110,7 +111,7 @@
                     <a href="${pageContext.request.contextPath}/search" class="btn-clear" title="Xóa từ khóa"><i class="fa-solid fa-circle-xmark"></i></a>
                 </c:if>
             </div>
-            <button type="button" class="btn-filter"><i class="fa-solid fa-sliders"></i> Bộ lọc</button>
+            <button type="button" class="btn-filter"><i class="fa-solid fa-sliders"></i> Tìm Kiếm</button>
         </form>
 
         <div class="result-count">Tìm thấy <c:out value="${listF != null ? listF.size() : 0}"/> món ăn</div>
@@ -123,12 +124,11 @@
                             <div class="img-wrapper">
                                 <img src="${pageContext.request.contextPath}/assets/images/${f.image_url}" alt="${f.food_name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=No+Image'">
                                 <div class="icon-heart"><i class="fa-regular fa-heart"></i></div>
-                                <div class="badge-safe"><i class="fa-solid fa-shield-check"></i> An toàn</div>
+                                 <div class="badge-safe"><i class="fa-solid fa-shield-check"></i> ${f.allergyConflictCount == 0 ? "An toàn" : "Có dị ứng"}</div>
                             </div>
                             <div class="card-info">
-                                <h3>${f.food_name}</h3>
-                                <div class="calo">${f.calories} calo</div>
-                                <div class="match"><i class="fa-solid fa-star"></i> 95% phù hợp</div>
+                                <div class="calo"><fmt:formatNumber value="${f.calories}" maxFractionDigits="0"/> calo</div>
+                                <div class="match"><i class="fa-solid fa-star"></i> <fmt:formatNumber value="${f.suitabilityScore}" maxFractionDigits="0"/>% phù hợp</div>
                             </div>
                         </a>
                     </c:forEach>

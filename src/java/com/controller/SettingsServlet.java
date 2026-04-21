@@ -22,6 +22,9 @@ public class SettingsServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/views/auth/login.jsp");
             return;
         }
+         User currentUser = (User) session.getAttribute("currentUser");
+        UserDAO dao = new UserDAO();
+        request.setAttribute("goalData", dao.getLatestGoalByUserId(currentUser.getId()));
         request.getRequestDispatcher("/views/auth/settings.jsp").forward(request, response);
     }
 
@@ -41,6 +44,7 @@ public class SettingsServlet extends HttpServlet {
         // Lấy biến action để biết người dùng đang bấm nút Lưu ở thẻ nào
         String action = request.getParameter("action");
         UserDAO dao = new UserDAO();
+        request.setAttribute("goalData", dao.getLatestGoalByUserId(currentUser.getId()));
 
         try {
             // NẾU BẤM LƯU "THÔNG TIN CÁ NHÂN"
@@ -80,6 +84,15 @@ public class SettingsServlet extends HttpServlet {
                     } else {
                         request.setAttribute("errorPass", "Mật khẩu hiện tại không đúng!");
                     }
+                }
+            }
+            else if ("updateGoal".equals(action)) {
+                String goalType = request.getParameter("goalType");
+                double targetCalories = Double.parseDouble(request.getParameter("targetCalories"));
+                if (dao.upsertUserGoal(currentUser.getId(), goalType, targetCalories)) {
+                    request.setAttribute("successGoal", "Đã cập nhật mục tiêu dinh dưỡng!");
+                } else {
+                    request.setAttribute("errorGoal", "Không thể cập nhật mục tiêu.");
                 }
             }
         } catch (Exception e) {

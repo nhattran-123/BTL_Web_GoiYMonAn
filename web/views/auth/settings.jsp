@@ -84,6 +84,37 @@
                     </div>
                 </div>
             </form>
+                         <form action="${pageContext.request.contextPath}/settings" method="POST">
+                <input type="hidden" name="action" value="updateGoal">
+                <div class="setting-card">
+                    <div class="card-top">
+                        <div class="card-title-box">
+                            <div class="icon-box"><i class="fa-solid fa-bullseye"></i></div>
+                            <div>
+                                <h3>Mục tiêu dinh dưỡng</h3>
+                                <p>Cập nhật mục tiêu cho trang chủ</p>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-save-green"><i class="fa-regular fa-floppy-disk"></i> Lưu mục tiêu</button>
+                    </div>
+                    <c:if test="${not empty successGoal}"><div class="alert alert-success">${successGoal}</div></c:if>
+                    <c:if test="${not empty errorGoal}"><div class="alert alert-error">${errorGoal}</div></c:if>
+                    <div class="form-row-custom">
+                        <div class="form-group">
+                            <label>Loại mục tiêu</label>
+                            <select name="goalType" class="form-control-custom">
+                                <option value="Giảm cân" ${goalData.goalType == 'Giảm cân' ? 'selected' : ''}>Giảm cân</option>
+                                <option value="Duy trì" ${goalData.goalType == 'Duy trì' ? 'selected' : ''}>Duy trì</option>
+                                <option value="Tăng cân" ${goalData.goalType == 'Tăng cân' ? 'selected' : ''}>Tăng cân</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Calories mục tiêu/ngày</label>
+                            <input type="number" min="800" step="10" name="targetCalories" class="form-control-custom" value="${empty goalData.targetCalories ? 2000 : goalData.targetCalories}" required>
+                        </div>
+                    </div>
+                </div>
+            </form>
 
             <form action="${pageContext.request.contextPath}/settings" method="POST">
                 <input type="hidden" name="action" value="changePassword">

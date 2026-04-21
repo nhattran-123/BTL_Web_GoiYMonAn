@@ -80,6 +80,107 @@ public class FoodDAO {
         }
         return safeFoodList;
     }
+     public List<Food> getTopSuitableFoodsForUser(int userId, int limit) {
+        List<Food> list = new ArrayList<>();
+        String sql = "SELECT f.Food_id, f.Food_name, f.description, f.image_url, f.calories, "
+                + "COALESCE(fd_stats.avg_rating, 3) AS avg_rating, "
+                + "COALESCE(allergy_stats.conflict_count, 0) AS conflict_count, "
+                + "COALESCE(fd_stats.match_count, 0) AS match_count "
+                + "FROM Food f "
+                + "LEFT JOIN ( "
+                + "   SELECT fd.Food_id, AVG(fd.Rating) AS avg_rating, COUNT(*) AS match_count "
+                + "   FROM Food_disease fd "
+                + "   JOIN User_disease ud ON ud.Disease_id = fd.Disease_id "
+                + "   WHERE ud.User_id = ? "
+                + "   GROUP BY fd.Food_id "
+                + ") fd_stats ON f.Food_id = fd_stats.Food_id "
+                + "LEFT JOIN ( "
+                + "   SELECT fi.Food_id, COUNT(*) AS conflict_count "
+                + "   FROM Food_Ingredient fi "
+                + "   JOIN User_allergy ua ON ua.Ingredient_id = fi.Ingredient_id "
+                + "   WHERE ua.User_id = ? "
+                + "   GROUP BY fi.Food_id "
+                + ") allergy_stats ON f.Food_id = allergy_stats.Food_id "
+                + "ORDER BY conflict_count ASC, avg_rating DESC, match_count DESC, f.calories ASC "
+                + "LIMIT ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, userId);
+            ps.setInt(3, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapSuitabilityFood(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Food> searchSuitableFoodsForUser(int userId, String keyword, int limit) {
+        List<Food> list = new ArrayList<>();
+        String sql = "SELECT f.Food_id, f.Food_name, f.description, f.image_url, f.calories, "
+                + "COALESCE(fd_stats.avg_rating, 3) AS avg_rating, "
+                + "COALESCE(allergy_stats.conflict_count, 0) AS conflict_count, "
+                + "COALESCE(fd_stats.match_count, 0) AS match_count "
+                + "FROM Food f "
+                + "LEFT JOIN ( "
+                + "   SELECT fd.Food_id, AVG(fd.Rating) AS avg_rating, COUNT(*) AS match_count "
+                + "   FROM Food_disease fd "
+                + "   JOIN User_disease ud ON ud.Disease_id = fd.Disease_id "
+                + "   WHERE ud.User_id = ? "
+                + "   GROUP BY fd.Food_id "
+                + ") fd_stats ON f.Food_id = fd_stats.Food_id "
+                + "LEFT JOIN ( "
+                + "   SELECT fi.Food_id, COUNT(*) AS conflict_count "
+                + "   FROM Food_Ingredient fi "
+                + "   JOIN User_allergy ua ON ua.Ingredient_id = fi.Ingredient_id "
+                + "   WHERE ua.User_id = ? "
+                + "   GROUP BY fi.Food_id "
+                + ") allergy_stats ON f.Food_id = allergy_stats.Food_id "
+                + "WHERE (? IS NULL OR ? = '' OR f.Food_name LIKE ?) "
+                + "ORDER BY conflict_count ASC, avg_rating DESC, match_count DESC, f.calories ASC "
+                + "LIMIT ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, userId);
+            ps.setString(3, keyword);
+            ps.setString(4, keyword);
+            ps.setString(5, "%" + keyword + "%");
+            ps.setInt(6, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapSuitabilityFood(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    private Food mapSuitabilityFood(ResultSet rs) throws Exception {
+        Food food = new Food();
+        food.setFood_id(rs.getInt("Food_id"));
+        food.setFood_name(rs.getString("Food_name"));
+        food.setDescription(rs.getString("description"));
+        food.setImage_url(rs.getString("image_url"));
+        food.setCalories(rs.getDouble("calories"));
+        food.setAllergyConflictCount(rs.getInt("conflict_count"));
+        food.setDiseaseMatchCount(rs.getInt("match_count"));
+        double score = (rs.getDouble("avg_rating") * 20.0) - (food.getAllergyConflictCount() * 25.0);
+        if (score < 0) {
+            score = 0;
+        }
+        if (score > 100) {
+            score = 100;
+        }
+        food.setSuitabilityScore(score);
+        return food;
+    }
     // Lấy danh sách tất cả món ăn
     public List<Food> getAllFoods() {
         List<Food> list = new ArrayList<>();

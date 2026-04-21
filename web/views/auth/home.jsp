@@ -1,4 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css">
@@ -63,19 +65,19 @@
                 <div class="stat-card-header">
                     <div>
                         <h3>Calo hôm nay</h3>
-                        <h2>1450 <span style="font-size:14px; color:#aaa;">/2000</span></h2>
+                        <h2><fmt:formatNumber value="${todayCalories}" maxFractionDigits="0"/> <span style="font-size:14px; color:#aaa;">/<fmt:formatNumber value="${targetCalories}" maxFractionDigits="0"/></span></h2>
                     </div>
                     <div class="icon-box"><i class="fa-solid fa-fire-flame-curved"></i></div>
                 </div>
                 <div class="progress-bar"><div class="progress-fill"></div></div>
-                <div class="stat-note">Còn lại 550 calo</div>
+               <div class="stat-note">Còn lại <fmt:formatNumber value="${remainCalories}" maxFractionDigits="0"/> calo</div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-card-header">
                     <div>
                         <h3>Chỉ số BMI</h3>
-                        <h2>22.5</h2>
+                         <h2><fmt:formatNumber value="${bmi}" maxFractionDigits="2"/></h2>
                     </div>
                     <div class="icon-box"><i class="fa-solid fa-scale-balanced"></i></div>
                 </div>
@@ -86,7 +88,7 @@
                 <div class="stat-card-header">
                     <div>
                         <h3>BMR</h3>
-                        <h2>1650</h2>
+                       <h2><fmt:formatNumber value="${bmr}" maxFractionDigits="0"/></h2>
                     </div>
                     <div class="icon-box"><i class="fa-solid fa-square-root-variable"></i></div>
                 </div>
@@ -97,11 +99,11 @@
                 <div class="stat-card-header">
                     <div>
                         <h3>Mục tiêu</h3>
-                        <h2>Giảm cân</h2>
+                        <h2>${goalLabel}</h2>
                     </div>
                     <div class="icon-box"><i class="fa-solid fa-bullseye"></i></div>
                 </div>
-                <div class="stat-note" style="margin-top: 15px;">Cập nhật mục tiêu</div>
+                 <div class="stat-note" style="margin-top: 15px;"><a href="${pageContext.request.contextPath}/settings" style="color: inherit;">Cập nhật mục tiêu</a></div>
             </div>
         </section>
 
@@ -111,27 +113,15 @@
                 <a href="${pageContext.request.contextPath}/meal_plan" class="view-all">Xem tất cả ></a>
             </div>
             <div class="meals-grid">
-                <div class="meal-card">
-                    <div class="meal-time">07</div>
-                    <div class="meal-info">
-                        <h4>Bữa sáng</h4>
-                        <p>450 calo - 2 món</p>
+                 <c:forEach var="meal" items="${todayMeals}" varStatus="st">
+                    <div class="meal-card">
+                        <div class="meal-time">${st.index + 1}</div>
+                        <div class="meal-info">
+                            <h4>${meal.mealName}</h4>
+                            <p><fmt:formatNumber value="${meal.totalCalories}" maxFractionDigits="0"/> calo - ${meal.totalFoods} món</p>
                     </div>
                 </div>
-                <div class="meal-card">
-                    <div class="meal-time">12</div>
-                    <div class="meal-info">
-                        <h4>Bữa trưa</h4>
-                        <p>650 calo - 3 món</p>
-                    </div>
-                </div>
-                <div class="meal-card">
-                    <div class="meal-time">18</div>
-                    <div class="meal-info">
-                        <h4>Bữa tối</h4>
-                        <p>150 calo - 1 món</p>
-                    </div>
-                </div>
+                     </c:forEach>
             </div>
         </section>
 
@@ -141,47 +131,22 @@
                 <a href="${pageContext.request.contextPath}/foods" class="view-all">Xem thêm ></a>
             </div>
             <div class="suggest-grid">
-                <div class="food-card">
-                    <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Salad" class="food-img">
-                    <button class="heart-btn"><i class="fa-regular fa-heart"></i></button>
-                    <div class="status-badge bg-safe"><i class="fa-solid fa-check"></i> An toàn</div>
-                    <div class="food-content">
-                        <h4>Salad gà nướng</h4>
-                        <p>350 calo</p>
-                        <div class="food-footer">
-                            <i class="fa-regular fa-star"></i>
-                            <span>- Phù hợp mục tiêu giảm cân</span>
+                <c:forEach var="food" items="${homeSuggestions}">
+                    <div class="food-card">
+                        <img src="${pageContext.request.contextPath}/assets/images/${food.image_url}" alt="${food.food_name}" class="food-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                        <div class="status-badge ${food.allergyConflictCount == 0 ? 'bg-safe' : 'bg-warn'}">
+                            <i class="fa-solid ${food.allergyConflictCount == 0 ? 'fa-check' : 'fa-shield-halved'}"></i> ${food.allergyConflictCount == 0 ? 'An toàn' : 'Có dị ứng'}
+                        </div>
+                   <div class="food-content">
+                            <h4>${food.food_name}</h4>
+                            <p><fmt:formatNumber value="${food.calories}" maxFractionDigits="0"/> calo</p>
+                            <div class="food-footer">
+                                <i class="fa-regular fa-star"></i>
+                                <span><fmt:formatNumber value="${food.suitabilityScore}" maxFractionDigits="0"/>% phù hợp</span>
                         </div>
                     </div>
                 </div>
-
-                <div class="food-card">
-                    <img src="https://images.unsplash.com/photo-1547592180-85f173990554?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Soup" class="food-img">
-                    <button class="heart-btn"><i class="fa-regular fa-heart"></i></button>
-                    <div class="status-badge bg-safe"><i class="fa-solid fa-check"></i> An toàn</div>
-                    <div class="food-content">
-                        <h4>Súp bí đỏ</h4>
-                        <p>180 calo</p>
-                        <div class="food-footer">
-                            <i class="fa-regular fa-star"></i>
-                            <span>- Giàu chất xơ, ít calo</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="food-card">
-                    <img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Salmon" class="food-img">
-                    <button class="heart-btn"><i class="fa-regular fa-heart"></i></button>
-                    <div class="status-badge bg-warn"><i class="fa-solid fa-shield-halved"></i> Lưu ý</div>
-                    <div class="food-content">
-                        <h4>Cá hồi nướng</h4>
-                        <p>350 calo</p>
-                        <div class="food-footer">
-                            <i class="fa-regular fa-star"></i>
-                            <span>- Giàu Omega -3</span>
-                        </div>
-                    </div>
-                </div>
+                        </c:forEach>
             </div>
         </section>
 

@@ -440,6 +440,35 @@ public class MealPlanDAO {
     }
     
     
+    public List<Map<String, Object>> getMealSummaryByDate(int userId, LocalDate date) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        String sql = "SELECT mt.meal_name, "
+                + "COALESCE(SUM(CASE WHEN dm.menu_id IS NOT NULL THEN f.calories ELSE 0 END),0) AS total_calories, "
+                + "SUM(CASE WHEN dm.menu_id IS NOT NULL THEN 1 ELSE 0 END) AS total_foods "
+                + "FROM Meal_type mt "
+                + "LEFT JOIN Menu_Detail md ON md.Meal_type_id = mt.meal_type_id "
+                + "LEFT JOIN Daily_Menu dm ON dm.menu_id = md.Menu_id AND dm.User_id = ? AND dm.Menu_date = ? "
+                + "LEFT JOIN Food f ON f.Food_id = md.Food_id "
+                + "GROUP BY mt.meal_type_id, mt.meal_name "
+                + "ORDER BY mt.meal_type_id";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setDate(2, Date.valueOf(date));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("mealName", rs.getString("meal_name"));
+                    row.put("totalCalories", rs.getDouble("total_calories"));
+                    row.put("totalFoods", rs.getInt("total_foods"));
+                    list.add(row);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
     public int getTotalMenus() {
         int count = 0;
         String query = "SELECT COUNT(*) FROM Daily_Menu";

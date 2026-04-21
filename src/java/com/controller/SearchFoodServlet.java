@@ -1,6 +1,7 @@
 package com.controller;
 
 import com.model.bean.Food;
+import com.model.bean.User;
 import com.model.dao.FoodDAO;
 import java.io.IOException;
 import java.util.List;
@@ -9,6 +10,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @WebServlet(name = "SearchFoodServlet", urlPatterns = {"/search"})
 public class SearchFoodServlet extends HttpServlet {
@@ -20,18 +22,15 @@ public class SearchFoodServlet extends HttpServlet {
 
         // 1. Lấy từ khóa tìm kiếm từ ô input (name="txtSearch")
         String keyword = request.getParameter("txtSearch");
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("currentUser");
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/views/auth/login.jsp");
+            return;
+        }
         
         FoodDAO dao = new FoodDAO();
-        List<Food> list;
-
-        // 2. Logic gộp: Kiểm tra từ khóa
-        if (keyword == null || keyword.trim().isEmpty()) {
-            // Trường hợp luồng chính bước 2: Hiển thị danh sách gợi ý (tất cả)
-            list = dao.getAllFoods();
-        } else {
-            // Trường hợp luồng chính bước 4: Lọc dữ liệu theo từ khóa
-            list = dao.searchFoodByName(keyword);
-        }
+        List<Food> list = dao.searchSuitableFoodsForUser(user.getId(), keyword == null ? "" : keyword.trim(), 200);
 
         // 3. Đẩy dữ liệu và từ khóa sang JSP để hiển thị
         request.setAttribute("listF", list);
@@ -39,7 +38,7 @@ public class SearchFoodServlet extends HttpServlet {
         
         // Chuyển hướng sang trang giao diện
         // Sửa dòng này:
-        request.getRequestDispatcher("views/auth/SearchFood.jsp").forward(request, response);
+        request.getRequestDispatcher("/views/auth/SearchFood.jsp").forward(request, response);
         
     }
 }
