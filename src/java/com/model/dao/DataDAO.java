@@ -42,7 +42,7 @@ public class DataDAO {
 
     // lưu lịch sử đăng nhập 
     public void saveLoginRecord(int userId) {
-        String query = "INSERT INTO user_login (user_id, login_date) VALUES (?, CURDATE())";
+        String query = "INSERT INTO user_login (id, login_date) VALUES (?, CURDATE())";
         try (Connection conn =new  DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, userId);
