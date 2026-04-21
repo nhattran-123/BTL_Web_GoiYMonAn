@@ -4,6 +4,7 @@ import com.model.bean.Food;
 import com.model.bean.User;
 import com.model.dao.FoodDAO;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -27,8 +28,13 @@ public class FoodListServlet extends HttpServlet {
                 return;
             }
 
-            // Lấy tối đa 30 món phù hợp nhất dựa theo bệnh lý + dị ứng
-            displayList = foodDAO.getTopSuitableFoodsForUser(user.getId(), 30);
+            List<Food> suggestedFoods = foodDAO.getTopSuitableFoodsForUser(user.getId(), 30);
+            displayList = new ArrayList<>();
+            for (Food food : suggestedFoods) {
+                if (food.getSuitabilityScore() >= 50) {
+                    displayList.add(food);
+                }
+            }
 
             // Gửi danh sách này sang JSP
             request.setAttribute("foodList", displayList);

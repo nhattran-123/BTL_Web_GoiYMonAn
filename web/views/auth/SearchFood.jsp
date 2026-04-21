@@ -111,7 +111,7 @@
                     <a href="${pageContext.request.contextPath}/search" class="btn-clear" title="Xóa từ khóa"><i class="fa-solid fa-circle-xmark"></i></a>
                 </c:if>
             </div>
-            <button type="button" class="btn-filter"><i class="fa-solid fa-sliders"></i> Tìm Kiếm</button>
+                        <button type="submit" class="btn-filter"><i class="fa-solid fa-sliders"></i> Tìm Kiếm</button>
         </form>
 
         <div class="result-count">Tìm thấy <c:out value="${listF != null ? listF.size() : 0}"/> món ăn</div>
@@ -134,6 +134,7 @@
                                 </c:choose>
                             </div>
                             <div class="card-info">
+                                 <h3><c:out value="${f.food_name}"/></h3>
                                 <div class="calo"><fmt:formatNumber value="${f.calories}" maxFractionDigits="0"/> calo</div>
                                 <div class="match"><i class="fa-solid fa-star"></i> <fmt:formatNumber value="${f.suitabilityScore}" maxFractionDigits="0"/>% phù hợp</div>
                             </div>
