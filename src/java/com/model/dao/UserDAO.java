@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class UserDAO {
 
-    // 1. Kiểm tra Email tồn tại
+    //Kiểm tra Email tồn tại
     public boolean checkEmailExist(String email) {
         String query = "SELECT 1 FROM Users WHERE email = ?";
         try (Connection conn = new DBContext().getConnection();
@@ -25,7 +25,7 @@ public class UserDAO {
         return false;
     }
 
-    // 2. Đăng ký User mới
+    // Đăng ký User mới
     public int registerUserReturnId(User u) {
         String query = "INSERT INTO Users (name, email, password, gender, age, weight, height, desired_weight, desired_height, Role, create_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'USER', CURDATE())";
         try (Connection conn = new DBContext().getConnection();
@@ -47,7 +47,7 @@ public class UserDAO {
         return -1;
     }
 
-    // 3. Kiểm tra đăng nhập
+    // Kiểm tra đăng nhập
     public User checkLogin(String email, String password) {
         String query = "SELECT * FROM Users WHERE email = ? AND password = ?";
         try (Connection conn = new DBContext().getConnection();
@@ -74,7 +74,7 @@ public class UserDAO {
         return null;
     }
 
-    // 4. Cập nhật chỉ số sức khỏe cơ bản
+    // Cập nhật chỉ số sức khỏe cơ bản
     public boolean updateHealthProfile(User u) {
         String query = "UPDATE Users SET gender=?, age=?, weight=?, height=?, desired_weight=?, desired_height=? WHERE User_id=?";
         try (Connection conn = new DBContext().getConnection();
@@ -90,7 +90,7 @@ public class UserDAO {
         } catch (Exception e) { return false; }
     }
 
-    // 5. Lấy danh sách ID bệnh của User
+    //  Lấy danh sách ID bệnh của User
     public List<Integer> getDiseaseIdsByUserId(int userId) {
         List<Integer> list = new ArrayList<>();
         String query = "SELECT Disease_id FROM User_disease WHERE User_id = ?";
@@ -300,9 +300,7 @@ public class UserDAO {
         return false; 
     }
 
-    // ================== CÁC HÀM MỚI CHO ADMIN QUẢN LÝ (DÙNG DỮ LIỆU CÓ SẴN) ==================
-
-    // Lấy thông kê đếm số lượng (Trạng thái được fake)
+    // Lấy thông kê đếm số lượng 
     public int[] getUserStats() {
         int[] stats = new int[4]; // [Tổng, Hoạt động, Không HĐ, Admin]
         String sql = "SELECT COUNT(*) AS total, SUM(CASE WHEN Role = 'ADMIN' THEN 1 ELSE 0 END) AS admins FROM Users";
@@ -525,7 +523,7 @@ public class UserDAO {
             while (rs.next()) {
                 int month = rs.getInt("month");
                 int count = rs.getInt("count");
-                // Array index bắt đầu từ 0 (tháng 1 là index 0)
+                
                 monthlyData[month - 1] = count; 
             }
         } catch (Exception e) {
