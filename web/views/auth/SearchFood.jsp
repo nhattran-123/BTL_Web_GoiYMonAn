@@ -124,7 +124,14 @@
                             <div class="img-wrapper">
                                 <img src="${pageContext.request.contextPath}/assets/images/${f.image_url}" alt="${f.food_name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=No+Image'">
                                 <div class="icon-heart"><i class="fa-regular fa-heart"></i></div>
-                                 <div class="badge-safe"><i class="fa-solid fa-shield-check"></i> ${f.allergyConflictCount == 0 ? "An toàn" : "Có dị ứng"}</div>
+                                <c:choose>
+                                    <c:when test="${f.allergyConflictCount > 0}">
+                                        <div class="badge-safe" style="background: #f59e0b;"><i class="fa-solid fa-triangle-exclamation"></i> <span style="color: #ffffff; font-weight: bold;">Có dị ứng</span></div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="badge-safe"><i class="fa-solid fa-shield-check"></i> An toàn</div>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                             <div class="card-info">
                                 <div class="calo"><fmt:formatNumber value="${f.calories}" maxFractionDigits="0"/> calo</div>

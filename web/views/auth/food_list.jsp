@@ -59,17 +59,19 @@
 
         <div class="grid">
             <c:forEach var="food" items="${foodList}">
-                <a href="food-detail?id=${food.food_id}" class="card">
-                    <div class="card-img-wrapper">
-                        <img src="${pageContext.request.contextPath}/assets/images/${food.image_url}" alt="${food.food_name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=No+Image'">
-                       <span class="badge-safe">${food.allergyConflictCount == 0 ? "✔ An toàn" : "⚠ Cân nhắc"}</span>
-                    </div>
-                    <div class="card-body">
-                        <h3 class="card-title">${food.food_name}</h3>
-                        <div class="card-calo">${food.displayCalories} calo</div>
-                        <div class="card-rating"><i class="fa-solid fa-star"></i> <fmt:formatNumber value="${food.suitabilityScore}" maxFractionDigits="0"/>% phù hợp</div>
-                    </div>
-                </a>
+                <c:if test="${food.suitabilityScore >= 50}">
+                    <a href="food-detail?id=${food.food_id}" class="card">
+                        <div class="card-img-wrapper">
+                            <img src="${pageContext.request.contextPath}/assets/images/${food.image_url}" alt="${food.food_name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                           <span class="badge-safe">${food.allergyConflictCount == 0 ? "✔ An toàn" : "⚠ Cân nhắc"}</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">${food.food_name}</h3>
+                            <div class="card-calo">${food.displayCalories} calo</div>
+                            <div class="card-rating"><i class="fa-solid fa-star"></i> <fmt:formatNumber value="${food.suitabilityScore}" maxFractionDigits="0"/>% phù hợp</div>
+                        </div>
+                    </a>
+                </c:if>
             </c:forEach>
         </div>
     </main>
