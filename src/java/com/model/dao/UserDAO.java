@@ -27,7 +27,7 @@ public class UserDAO {
 
     // 2. Đăng ký User mới
     public int registerUserReturnId(User u) {
-        String query = "INSERT INTO Users (name, email, password, gender, age, weight, height, desired_weight, desired_height, Role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'USER')";
+        String query = "INSERT INTO Users (name, email, password, gender, age, weight, height, desired_weight, desired_height, Role, create_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'USER', CURDATE())";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, u.getFullName());
@@ -482,5 +482,56 @@ public class UserDAO {
             }
         } catch (Exception e) { e.printStackTrace(); }
         return map;
+    }
+    
+        public double getUserGrowth() {
+        double thisMonth = 0;
+        double lastMonth = 0;
+
+        String sqlThis = "SELECT COUNT(*) FROM Users WHERE MONTH(create_at) = MONTH(CURRENT_DATE()) AND YEAR(create_at) = YEAR(CURRENT_DATE())";
+        String sqlLast = "SELECT COUNT(*) FROM Users WHERE MONTH(create_at) = MONTH(CURRENT_DATE() - INTERVAL 1 MONTH) AND YEAR(create_at) = YEAR(CURRENT_DATE() - INTERVAL 1 MONTH)";
+
+        try (Connection conn = new DBContext().getConnection()) {
+           
+            PreparedStatement ps1 = conn.prepareStatement(sqlThis);
+            ResultSet rs1 = ps1.executeQuery();
+            if(rs1.next()) thisMonth = rs1.getDouble(1);
+
+            
+            PreparedStatement ps2 = conn.prepareStatement(sqlLast);
+            ResultSet rs2 = ps2.executeQuery();
+            if(rs2.next()) lastMonth = rs2.getDouble(1);
+
+        } catch (Exception e) { e.printStackTrace(); }
+
+        if (lastMonth == 0) return thisMonth > 0 ? 100 : 0;
+        return ((thisMonth - lastMonth) / lastMonth) * 100;
+    }
+        
+    public int[] getNewUsersPerMonth(int year) {
+        int[] monthlyData = new int[12]; 
+
+        String sql = "SELECT MONTH(create_at) AS month, COUNT(*) AS count " +
+                     "FROM users " +
+                     "WHERE YEAR(create_at) = ? " +
+                     "GROUP BY MONTH(create_at)";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, year);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int month = rs.getInt("month");
+                int count = rs.getInt("count");
+                // Array index bắt đầu từ 0 (tháng 1 là index 0)
+                monthlyData[month - 1] = count; 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return monthlyData;
     }
 }

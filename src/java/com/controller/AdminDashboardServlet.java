@@ -1,7 +1,7 @@
 package com.controller;
 
 import com.model.bean.User;
-import com.model.dao.*; // Import tất cả các DAO
+import com.model.dao.*; 
 import java.io.IOException;
 import java.util.Map;
 import javax.servlet.ServletException;
@@ -38,7 +38,13 @@ public class AdminDashboardServlet extends HttpServlet {
         int totalUsers = userDAO.getTotalUsers();
         int totalFoods = foodDAO.getTotalFoods();
         int totalMenus = mealPlanDAO.getTotalMenus();
-        int todayActivities = dataDAO.getTodayActivities();
+        int todayActivities = dataDAO.getUserActivities();
+        double userGrowth = userDAO.getUserGrowth();
+        double foodGrowth = foodDAO.getFoodGrowth();
+        double menuGrowth = mealPlanDAO.getMenuGrowth();
+        
+        int currentYear = java.time.Year.now().getValue();
+        int[] userStats = userDAO.getNewUsersPerMonth(currentYear);
         
         Map<String, Integer> topFoods = favoriteDAO.getTopFavoriteFoods(3); 
         Map<String, Double> popularGoals = userDAO.getPopularGoals();
@@ -50,7 +56,10 @@ public class AdminDashboardServlet extends HttpServlet {
         request.setAttribute("todayActivities", todayActivities);
         request.setAttribute("topFoods", topFoods);
         request.setAttribute("popularGoals", popularGoals);
-
+        request.setAttribute("userGrowth", userGrowth);
+        request.setAttribute("foodGrowth", foodGrowth);
+        request.setAttribute("menuGrowth", menuGrowth);
+        request.setAttribute("userChartData", java.util.Arrays.toString(userStats));
         // 4. Chuyển hướng
         request.getRequestDispatcher("/admin/dashboard.jsp").forward(request, response);
     }

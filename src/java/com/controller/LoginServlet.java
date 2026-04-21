@@ -2,6 +2,7 @@ package com.controller;
 
 import com.model.bean.User;
 import com.model.dao.UserDAO;
+import com.model.dao.DataDAO;
 import com.util.SecurityUtil; 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -41,7 +42,10 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             // Lĩnh nhớ cái tên "currentUser" này để tý nữa gọi ra ở trang home nhé
             session.setAttribute("currentUser", user);
-
+            
+            DataDAO dataDAO = new DataDAO();
+            dataDAO.saveLoginRecord(user.getId());
+            
             // --- ĐOẠN LOGIC PHÂN LUỒNG MỚI (ADMIN vs USER) ---
             if ("ADMIN".equalsIgnoreCase(user.getRole())) {
                 // Nếu là Admin -> Bay vào trang Quản trị (Gọi đến AdminDashboardServlet)

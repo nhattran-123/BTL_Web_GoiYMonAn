@@ -311,4 +311,27 @@ public class FoodDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return count;
     }
+    
+        public double getFoodGrowth() {
+        double thisMonth = 0;
+        double lastMonth = 0;
+
+        String sqlThis = "SELECT COUNT(*) FROM food WHERE MONTH(create_at) = MONTH(CURRENT_DATE()) AND YEAR(create_at) = YEAR(CURRENT_DATE())";
+        String sqlLast = "SELECT COUNT(*) FROM food WHERE MONTH(create_at) = MONTH(CURRENT_DATE() - INTERVAL 1 MONTH) AND YEAR(create_at) = YEAR(CURRENT_DATE() - INTERVAL 1 MONTH)";
+
+        try (Connection conn = new DBContext().getConnection()) {
+
+            PreparedStatement ps1 = conn.prepareStatement(sqlThis);
+            ResultSet rs1 = ps1.executeQuery();
+            if (rs1.next()) thisMonth = rs1.getDouble(1);
+
+            PreparedStatement ps2 = conn.prepareStatement(sqlLast);
+            ResultSet rs2 = ps2.executeQuery();
+            if (rs2.next()) lastMonth = rs2.getDouble(1);
+
+        } catch (Exception e) { e.printStackTrace(); }
+
+        if (lastMonth == 0) return thisMonth > 0 ? 100 : 0;
+        return ((thisMonth - lastMonth) / lastMonth) * 100;
+    }
 }

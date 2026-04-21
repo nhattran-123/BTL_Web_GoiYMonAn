@@ -39,14 +39,30 @@ public class DataDAO {
         return list;
     }
    
-    public int getTodayActivities() {
+
+    // lưu lịch sử đăng nhập 
+    public void saveLoginRecord(int userId) {
+        String query = "INSERT INTO user_login (user_id, login_date) VALUES (?, CURDATE())";
+        try (Connection conn =new  DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // đếm số người dùng đăng nhập 
+    public int getUserActivities() {
         int count = 0;
-        String query = "SELECT COUNT(*) FROM User_History WHERE DATETIME(eaten_at) = CURDATETIME()";
-        try (Connection conn = new DBContext().getConnection();
+        String query = "SELECT COUNT(DISTINCT id) FROM user_login WHERE DATE(login_date) = CURDATE()";
+        try (Connection conn =  new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) count = rs.getInt(1);
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return count;
     }
 }

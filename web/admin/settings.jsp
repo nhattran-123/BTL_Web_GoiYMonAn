@@ -20,7 +20,7 @@
         </div>
         <ul class="nav-menu">
             <li class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/dashboard.jsp" class="nav-link">
+                <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-link">
                     <i class="fa-solid fa-table-cells-large"></i> Tổng quan
                 </a>
             </li>
