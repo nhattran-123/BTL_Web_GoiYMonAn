@@ -15,32 +15,26 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
     margin-bottom: 20px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.02);
 }
-
-.search-box {
-    position: relative;
-    width: 100%;
-}
-
-.search-box i {
-    position: absolute;
-    left: 15px;
-    top: 50%;
+.search-box { position: relative; width: 350px; }
+.search-btn {
+    position: absolute; 
+    left: 10px; 
+    top: 50%; 
     transform: translateY(-50%);
-    color: #9ca3af;
+    background: transparent; 
+    border: none; 
+    color: #9ca3af; 
+    cursor: pointer;
+    padding: 5px;
 }
-
+.search-btn:hover { color: var(--admin-green); } 
 .search-box input {
-    width: 100%;
-    padding: 12px 15px 12px 40px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.3s;
-}
-
-.search-box input:focus {
-    border-color: #10b981;
+    width: 100%; 
+    padding: 10px 10px 10px 40px; 
+    border: 1px solid #e5e7eb; 
+    border-radius: 8px; 
+    outline: none; 
+    box-sizing: border-box;
 }
 
 /* GIAO DIỆN BẢNG DỮ LIỆU */

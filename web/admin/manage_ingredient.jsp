@@ -80,12 +80,18 @@
             </div>
         </c:if>
         
-        <div class="search-card">
+        <form action="${pageContext.request.contextPath}/admin/manage_ingredient" method="GET">
             <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Tìm kiếm theo tên hoặc phân loại...">
+                <button type="submit" class="search-btn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <input type="text" 
+                       name="keyword" 
+                       value="${searchKeyword}" 
+                       placeholder="Tìm kiếm theo tên hoặc phân loại..." 
+                       autocomplete="off">
             </div>
-        </div>
+        </form>
 
         <div class="table-card">
             <div class="table-header">Danh sách nguyên liệu (${totalRecords != null ? totalRecords : 0})</div>
@@ -139,15 +145,15 @@
             <c:if test="${totalPages > 1}">
                 <div class="pagination">
                     <c:if test="${currentPage > 1}">
-                        <a href="manage_ingredient?page=${currentPage - 1}"><i class="fa-solid fa-angle-left"></i></a>
+                        <a href="manage_ingredient?keyword=${searchKeyword}&page=${currentPage - 1}"><i class="fa-solid fa-angle-left"></i></a>
                     </c:if>
                     
                     <c:forEach begin="1" end="${totalPages}" var="i">
-                        <a href="manage_ingredient?page=${i}" class="${i == currentPage ? 'active' : ''}">${i}</a>
+                        <a href="manage_ingredient?keyword=${searchKeyword}&page=${i}" class="${i == currentPage ? 'active' : ''}">${i}</a>
                     </c:forEach>
                     
                     <c:if test="${currentPage < totalPages}">
-                        <a href="manage_ingredient?page=${currentPage + 1}"><i class="fa-solid fa-angle-right"></i></a>
+                        <a href="manage_ingredient?keyword=${searchKeyword}&page=${currentPage + 1}"><i class="fa-solid fa-angle-right"></i></a>
                     </c:if>
                 </div>
             </c:if>

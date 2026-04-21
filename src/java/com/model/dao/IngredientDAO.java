@@ -17,9 +17,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class IngredientDAO {
-    // Đếm tổng số lượng nguyên liệu trong CSDL
+    
+    // Đếm tổng số lượng nguyên liệu trong CSDL (Không có từ khóa)
     public int getTotalIngredient() {
         String sql = "SELECT COUNT(*) FROM Ingredient";
         try (Connection conn = new DBContext().getConnection();
@@ -34,10 +34,31 @@ public class IngredientDAO {
         return 0;
     }
 
-    // Lấy danh sách nguyên liệu có Phân Trang
+    // [MỚI] Đếm tổng số lượng nguyên liệu CÓ LỌC theo từ khóa (Dùng cho phân trang tìm kiếm)
+    public int getTotalIngredientByKeyword(String keyword) {
+        int total = 0;
+        String sql = "SELECT COUNT(*) FROM Ingredient WHERE Ingredient_name LIKE ? OR category LIKE ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+             
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    total = rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return total;
+    }
+
+    // Lấy danh sách nguyên liệu có Phân Trang (Không có từ khóa)
     public List<Ingredient> getIngredientsByPage(int offset, int limit) {
         List<Ingredient> list = new ArrayList<>();
-        // MySQL sử dụng LIMIT [số lượng] OFFSET [vị trí bắt đầu]
         String sql = "SELECT Ingredient_id, Ingredient_name, category, calories, Protein, fat, carbohydrate FROM Ingredient LIMIT ? OFFSET ?";
         
         try (Connection conn = new DBContext().getConnection();
@@ -64,14 +85,47 @@ public class IngredientDAO {
         }
         return list;
     }
+
+    // [MỚI] Lấy danh sách nguyên liệu CÓ TÌM KIẾM và CÓ PHÂN TRANG
+    public List<Ingredient> searchIngredientsByPage(String keyword, int offset, int limit) {
+        List<Ingredient> list = new ArrayList<>();
+        String sql = "SELECT * FROM Ingredient WHERE Ingredient_name LIKE ? OR category LIKE ? LIMIT ? OFFSET ?";
+        
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+             
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setInt(3, limit);
+            ps.setInt(4, offset);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Ingredient i = new Ingredient();
+                    i.setId(rs.getInt("Ingredient_id"));
+                    i.setName(rs.getString("Ingredient_name"));
+                    i.setCalories(rs.getDouble("calories"));
+                    i.setCategory(rs.getString("category"));
+                    i.setProtein(rs.getDouble("Protein"));
+                    i.setFat(rs.getDouble("fat"));
+                    i.setCarbohydrate(rs.getDouble("carbohydrate"));
+                    list.add(i);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
    
-    // Xoa' nguyen lieu
+    // Xóa nguyên liệu
     public boolean deleteIngredient(int id) {
         String sqlDeleteFoodIngredient = "delete from food_ingredient where Ingredient_id= ?";
         String sqlDeleteAllergy = "delete from user_allergy where Ingredient_id=?";
         String sqlDeleteIngredient = "delete from Ingredient where Ingredient_id = ?";
         try(Connection conn = new DBContext().getConnection()){
-         //  tắt auto-commit để gộp 3 lệnh xóa thành 1 giao dịch (Transaction)
+            // tắt auto-commit để gộp 3 lệnh xóa thành 1 giao dịch (Transaction)
             conn.setAutoCommit(false); 
             try(PreparedStatement ps1 = conn.prepareStatement(sqlDeleteFoodIngredient);
                 PreparedStatement ps2= conn.prepareStatement(sqlDeleteAllergy);
@@ -124,6 +178,7 @@ public class IngredientDAO {
         }
         return false;
     }
+
     // Lấy thông tin 1 nguyên liệu cụ thể để sửa
     public Ingredient getIngredientById(int id) {
         String sql = "SELECT * FROM Ingredient WHERE Ingredient_id = ?";
@@ -167,5 +222,35 @@ public class IngredientDAO {
         }
         return false;
     }
-}
+    
+    // Tìm kiếm nguyên liệu (Hàm cũ không có phân trang)
+    public List<Ingredient> searchIngredients(String keyword) {
+        List<Ingredient> list = new ArrayList<>();
+        String sql = "SELECT * FROM ingredient WHERE Ingredient_name LIKE ? OR category LIKE ?";
 
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Ingredient i = new Ingredient(
+                    rs.getInt("Ingredient_id"),
+                    rs.getString("Ingredient_name"),
+                    rs.getFloat("calories"),
+                    rs.getString("category"),
+                    rs.getFloat("Protein"),
+                    rs.getFloat("fat"),
+                    rs.getFloat("carbohydrate")
+                );
+                list.add(i);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+}

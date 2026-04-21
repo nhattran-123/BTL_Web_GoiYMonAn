@@ -8,6 +8,7 @@ package com.controller;
  *
  * @author dkhai
  */
+
 import com.model.bean.Ingredient;
 import com.model.dao.IngredientDAO;
 import java.io.IOException;
@@ -20,27 +21,34 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "ManageIngredientServlet", urlPatterns = {"/admin/manage_ingredient"})
 public class ManageIngredientServlet extends HttpServlet {
-    private IngredientDAO ingredientDAO = new IngredientDAO();
+    IngredientDAO ingredientDAO = new IngredientDAO();
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-            String action = request.getParameter("action");
-            if("delete".equals(action)) {
-                try{
-                    int id = Integer.parseInt(request.getParameter("id"));
-                    ingredientDAO.deleteIngredient(id);
-                    response.sendRedirect(request.getContextPath() + "/admin/manage_ingredient?success=deleted");
-                    return;
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
+        
+        // 1. Lấy và xử lý từ khóa tìm kiếm
+        String keyword = request.getParameter("keyword");
+        if (keyword == null) {
+            keyword = "";
+        }
+        
+        // 2. Xử lý chức năng Xóa (Giữ nguyên của bạn)
+        String action = request.getParameter("action");
+        if("delete".equals(action)) {
+            try {
+                int id = Integer.parseInt(request.getParameter("id"));
+                ingredientDAO.deleteIngredient(id);
+                response.sendRedirect(request.getContextPath() + "/admin/manage_ingredient?success=deleted");
+                return;
+            } catch (Exception e){
+                e.printStackTrace();
             }
+        }
 
-        // Xử lý Phân trang
-        int page = 1; // Mặc định là trang 1
-        int recordsPerPage = 10; // Hiển thị 10 nguyên liệu / trang
+        // 3. Xử lý Phân trang
+        int page = 1; 
+        int recordsPerPage = 10; 
 
-        // Lấy số trang từ URL (ví dụ: ?page=2), nếu có thì gán lại
         if (request.getParameter("page") != null) {
             try {
                 page = Integer.parseInt(request.getParameter("page"));
@@ -48,26 +56,25 @@ public class ManageIngredientServlet extends HttpServlet {
                 page = 1;
             }
         }
-
-        // Tính toán vị trí bắt đầu (offset)
         int offset = (page - 1) * recordsPerPage;
 
-        // Gọi DAO lấy dữ liệu theo trang và tổng số lượng
-        List<Ingredient> listIngredient = ingredientDAO.getIngredientsByPage(offset, recordsPerPage);
-        int totalRecords = ingredientDAO.getTotalIngredient();
+        // 4. KẾT HỢP: Lấy danh sách nguyên liệu có LỌC theo keyword VÀ PHÂN TRANG
+        // (Bạn cần viết thêm/sửa hàm này trong IngredientDAO)
+        List<Ingredient> listI = ingredientDAO.searchIngredientsByPage(keyword, offset, recordsPerPage);
         
-        // Tính tổng số trang (Ví dụ: 25 record / 10 = 2.5 -> làm tròn lên thành 3 trang)
+        // 5. KẾT HỢP: Đếm tổng số lượng bản ghi CÓ LỌC theo keyword
+        // (Cũng cần viết thêm/sửa hàm này trong IngredientDAO)
+        int totalRecords = ingredientDAO.getTotalIngredientByKeyword(keyword);
+        
         int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
 
-        // Đẩy dữ liệu sang JSP
-        request.setAttribute("listI", listIngredient);
+        // 6. Đẩy dữ liệu sang JSP
+        request.setAttribute("listI", listI); // Chỉ dùng 1 biến listI duy nhất
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
-        request.setAttribute("totalRecords", totalRecords); // Gửi thêm để hiển thị "(1000)" trên tiêu đề
+        request.setAttribute("totalRecords", totalRecords);
+        request.setAttribute("searchKeyword", keyword);
         
-        // Forward sang JSP
         request.getRequestDispatcher("/admin/manage_ingredient.jsp").forward(request, response);
-        
-
     }
 }
