@@ -145,7 +145,10 @@
                     <a href="users?page=${tag-1}&keyword=${txtSearch}&role=${txtRole}">&laquo;</a>
                 </c:if>
 
-                <c:forEach begin="1" end="${endP}" var="i">
+               <c:set var="startP" value="${((tag - 1) / 10) * 10 + 1}" />
+                <c:set var="finishP" value="${startP + 9 > endP ? endP : startP + 9}" />
+
+                <c:forEach begin="${startP}" end="${finishP}" var="i">
                     <a class="${tag == i ? 'active' : ''}" 
                        href="users?page=${i}&keyword=${txtSearch}&role=${txtRole}">${i}</a>
                 </c:forEach>
