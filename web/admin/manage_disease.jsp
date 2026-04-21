@@ -61,7 +61,7 @@
         <ul class="nav-menu">
             <li class="nav-item"><a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-link"><i class="fa-solid fa-table-cells-large"></i> Tổng quan</a></li>
             <li class="nav-item"><a href="${pageContext.request.contextPath}/admin/users" class="nav-link"><i class="fa-regular fa-address-book"></i> Quản lý người dùng</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-utensils"></i> Quản lý món ăn</a></li>
+            <li class="nav-item"><a href="${pageContext.request.contextPath}/admin/manage_food" class="nav-link"><i class="fa-solid fa-utensils"></i> Quản lý món ăn</a></li>
             <li class="nav-item"><a href="${pageContext.request.contextPath}/admin/manage_ingredient" class="nav-link"><i class="fa-solid fa-apple-whole"></i> Quản lý nguyên liệu</a></li>
             <li class="nav-item"><a href="${pageContext.request.contextPath}/admin/manage-disease" class="nav-link active"><i class="fa-solid fa-heart-pulse"></i> Quản lý bệnh lý</a></li>
             <li class="nav-item"><a href="${pageContext.request.contextPath}/admin/settings.jsp" class="nav-link"><i class="fa-solid fa-gear"></i> Cài đặt</a></li>

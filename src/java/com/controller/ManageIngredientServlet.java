@@ -32,7 +32,7 @@ public class ManageIngredientServlet extends HttpServlet {
             keyword = "";
         }
         
-        // 2. Xử lý chức năng Xóa (Giữ nguyên của bạn)
+        // 2. Xử lý chức năng Xóa 
         String action = request.getParameter("action");
         if("delete".equals(action)) {
             try {
@@ -58,18 +58,16 @@ public class ManageIngredientServlet extends HttpServlet {
         }
         int offset = (page - 1) * recordsPerPage;
 
-        // 4. KẾT HỢP: Lấy danh sách nguyên liệu có LỌC theo keyword VÀ PHÂN TRANG
-        // (Bạn cần viết thêm/sửa hàm này trong IngredientDAO)
+        //  Lấy danh sách nguyên liệu có LỌC theo keyword VÀ PHÂN TRANG
         List<Ingredient> listI = ingredientDAO.searchIngredientsByPage(keyword, offset, recordsPerPage);
         
-        // 5. KẾT HỢP: Đếm tổng số lượng bản ghi CÓ LỌC theo keyword
-        // (Cũng cần viết thêm/sửa hàm này trong IngredientDAO)
+        //Đếm tổng số lượng bản ghi CÓ LỌC theo keyword
         int totalRecords = ingredientDAO.getTotalIngredientByKeyword(keyword);
         
         int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
 
         // 6. Đẩy dữ liệu sang JSP
-        request.setAttribute("listI", listI); // Chỉ dùng 1 biến listI duy nhất
+        request.setAttribute("listI", listI); 
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("totalRecords", totalRecords);

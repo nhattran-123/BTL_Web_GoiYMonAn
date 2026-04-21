@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Statement;
 
 public class FoodDAO {
     public List<com.model.bean.IngredientItem> getIngredientsByFoodId(int foodId) {
@@ -31,15 +32,12 @@ public class FoodDAO {
                     int id = rs.getInt("Ingredient_id");
                     String name = rs.getString("Ingredient_name");
                     double qty = rs.getDouble("Quantity");
-                    String unit = rs.getString("Unit");
-                    
-                    //Lấy chuẩn xác theo tên AS trong câu SQL
+                    String unit = rs.getString("Unit");                    
                     double caloPerGram = rs.getDouble("caloPerGram");
                     double fatPerGram = rs.getDouble("fatPerGram");
                     double proteinPerGram = rs.getDouble("proteinPerGram");
                     double carbsPerGram = rs.getDouble("carbsPerGram");
-                    
-                    //  Truyền biến 'id' vào vị trí đầu tiên của Constructor
+
                     list.add(new com.model.bean.IngredientItem(id, name, qty, unit, caloPerGram, fatPerGram, proteinPerGram, carbsPerGram));
                 }
             }
@@ -192,10 +190,12 @@ public class FoodDAO {
             while (rs.next()) {
                 Food f = new Food();
                 f.setFood_id(rs.getInt("Food_id"));
-                f.setFood_name(rs.getString("Food_name"));
-                f.setDescription(rs.getString("description"));
+                f.setFood_name(rs.getString("Food_name"));               
                 f.setImage_url(rs.getString("image_url"));
                 f.setCalories(rs.getDouble("calories"));
+                f.setProtein(rs.getDouble("protein"));
+                f.setFat(rs.getDouble("fat"));
+                f.setCarbohydrate(rs.getDouble("carbohydrate"));
                 list.add(f);
             }
         } catch (Exception e) {
@@ -231,6 +231,99 @@ public class FoodDAO {
         }
         return null;
     }
+    
+    public boolean insertFoodWithIngredients(Food food, String[] ingredientIds, String[] quantities, String[] units) {
+        String sqlFood = "INSERT INTO food (Food_name, description, recipe, image_url, calories, protein, fat, carbohydrate, create_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE())";
+        String sqlDetail = "INSERT INTO food_ingredient (Food_id, Ingredient_id, Quantity, Unit) VALUES (?, ?, ?, ?)";
+        
+        try (Connection conn = new DBContext().getConnection()) {
+            conn.setAutoCommit(false); // Tắt auto commit để chạy Transaction
+            
+            try (PreparedStatement psFood = conn.prepareStatement(sqlFood, Statement.RETURN_GENERATED_KEYS)) {
+                psFood.setString(1, food.getFood_name());
+                psFood.setString(2, food.getDescription());
+                psFood.setString(3, food.getRecipe());
+                psFood.setString(4, food.getImage_url());
+                psFood.setDouble(5, food.getCalories());
+                psFood.setDouble(6, food.getProtein());
+                psFood.setDouble(7, food.getFat());
+                psFood.setDouble(8, food.getCarbohydrate());
+                psFood.executeUpdate();
+                
+                // Lấy ID của món ăn vừa tạo
+                ResultSet rs = psFood.getGeneratedKeys();
+                int newFoodId = 0;
+                if (rs.next()) {
+                    newFoodId = rs.getInt(1);
+                }
+                
+                // Lưu danh sách nguyên liệu
+                if (newFoodId > 0 && ingredientIds != null) {
+                    try (PreparedStatement psDetail = conn.prepareStatement(sqlDetail)) {
+                        for (int i = 0; i < ingredientIds.length; i++) {
+                            psDetail.setInt(1, newFoodId);
+                            psDetail.setInt(2, Integer.parseInt(ingredientIds[i]));
+                            psDetail.setDouble(3, Double.parseDouble(quantities[i]));
+                            psDetail.setString(4, units[i]);
+                            psDetail.addBatch(); // Gom lệnh
+                        }
+                        psDetail.executeBatch(); // Chạy 1 lần nhiều lệnh
+                    }
+                }
+                conn.commit(); // Thành công thì lưu database
+                return true;
+            } catch (Exception e) {
+                conn.rollback(); // Lỗi thì hoàn tác toàn bộ
+                e.printStackTrace();
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+    
+    public boolean deleteFood(int foodId) {
+        String[] deleteQueries = {
+            "DELETE FROM adjusted_recipe WHERE Food_id = ?",
+            "DELETE FROM food_disease WHERE Food_id = ?",
+            "DELETE FROM food_ingredient WHERE Food_id = ?",
+            "DELETE FROM menu_detail WHERE Food_id = ?",
+            "DELETE FROM recommendation WHERE food_id = ?",
+            "DELETE FROM user_favorite WHERE food_id = ?",
+            "DELETE FROM user_history WHERE Food_id = ?",
+            "DELETE FROM food WHERE Food_id = ?" 
+        };
+
+        try (Connection conn = new DBContext().getConnection()) {
+            // Tắt auto-commit để chạy Transaction (Gộp nhiều lệnh thành 1 khối)
+            conn.setAutoCommit(false); 
+            
+            try {
+                for (String sql : deleteQueries) {
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setInt(1, foodId);
+                        ps.executeUpdate();
+                    }
+                }
+                
+                // Nếu tất cả lệnh đều chạy thành công thì lưu vào database
+                conn.commit();
+                return true;
+                
+            } catch (Exception e) {
+                conn.rollback();
+                System.out.println("Lỗi khi xóa món ăn ID " + foodId + ", đã hoàn tác!");
+                e.printStackTrace();
+            } finally {
+                // Bật lại auto-commit cho các hàm khác hoạt động bình thường
+                conn.setAutoCommit(true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
     public java.util.List<com.model.bean.IngredientItem> getAllIngredientsFromDB() {
         java.util.List<com.model.bean.IngredientItem> list = new java.util.ArrayList<>();
         
@@ -266,7 +359,7 @@ public class FoodDAO {
         }
         return list;
     }
-    // Lấy danh sách món ăn theo từ khóa tìm kiếm (Use Case của tôi)
+    // Lấy danh sách món ăn theo từ khóa tìm kiếm 
     public List<Food> searchFoodByName(String keyword) {
         List<Food> list = new ArrayList<>();
         // Lưu ý: Tùy database của nhóm mà 'Food' có phân biệt hoa thường hay không.
@@ -312,7 +405,7 @@ public class FoodDAO {
         return count;
     }
     
-        public double getFoodGrowth() {
+    public double getFoodGrowth() {
         double thisMonth = 0;
         double lastMonth = 0;
 

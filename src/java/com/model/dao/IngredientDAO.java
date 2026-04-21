@@ -86,7 +86,7 @@ public class IngredientDAO {
         return list;
     }
 
-    // [MỚI] Lấy danh sách nguyên liệu CÓ TÌM KIẾM và CÓ PHÂN TRANG
+    //  Lấy danh sách nguyên liệu CÓ TÌM KIẾM và CÓ PHÂN TRANG
     public List<Ingredient> searchIngredientsByPage(String keyword, int offset, int limit) {
         List<Ingredient> list = new ArrayList<>();
         String sql = "SELECT * FROM Ingredient WHERE Ingredient_name LIKE ? OR category LIKE ? LIMIT ? OFFSET ?";

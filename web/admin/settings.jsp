@@ -30,7 +30,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="${pageContext.request.contextPath}/admin/manage_food" class="nav-link">
                     <i class="fa-solid fa-utensils"></i> Quản lý món ăn
                 </a>
             </li>
