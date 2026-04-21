@@ -29,7 +29,12 @@ public class DiseaseDAO {
     // [GIỮ NGUYÊN] Hàm Lấy danh sách
     public List<DiseaseDetail> getAllDiseases() {
         List<DiseaseDetail> list = new ArrayList<>();
-        String sql = "SELECT * FROM Disease ORDER BY Disease_id DESC";
+        String sql = "SELECT d.Disease_id, d.Disease_name, d.disease_description, "
+                + "COUNT(DISTINCT CASE WHEN fd.Rating >= 4 THEN fd.Food_id END) AS FoodCount "
+                + "FROM Disease d "
+                + "LEFT JOIN Food_disease fd ON d.Disease_id = fd.Disease_id "
+                + "GROUP BY d.Disease_id, d.Disease_name, d.disease_description "
+                + "ORDER BY d.Disease_id DESC";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -38,7 +43,7 @@ public class DiseaseDAO {
                 d.setId(rs.getInt("Disease_id"));
                 d.setName(rs.getString("Disease_name"));
                 d.setDescription(rs.getString("disease_description"));
-                d.setFoodCount(0); 
+                 d.setFoodCount(rs.getInt("FoodCount"));
                 list.add(d);
             }
         } catch (Exception e) {
