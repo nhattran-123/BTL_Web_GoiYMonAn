@@ -6,6 +6,9 @@ public class AdjustedRecipe {
     private int userId;
     private String recipe;
     private double calories;
+     private double fat;
+    private double protein;
+    private double carbohydrate;
 
     public AdjustedRecipe() {}
 
@@ -27,5 +30,11 @@ public class AdjustedRecipe {
     public void setRecipe(String recipe) { this.recipe = recipe; }
     public double getCalories() { return calories; }
     public void setCalories(double calories) { this.calories = calories; }
+    public double getFat() { return fat; }
+    public void setFat(double fat) { this.fat = fat; }
+    public double getProtein() { return protein; }
+    public void setProtein(double protein) { this.protein = protein; }
+    public double getCarbohydrate() { return carbohydrate; }
+    public void setCarbohydrate(double carbohydrate) { this.carbohydrate = carbohydrate; }
     
 }

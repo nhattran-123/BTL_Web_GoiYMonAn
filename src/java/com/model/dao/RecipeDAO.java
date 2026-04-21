@@ -81,4 +81,34 @@ public class RecipeDAO {
         }
         return isSuccess;
     }
+
+    public com.model.bean.AdjustedRecipe getAdjustedRecipeByFoodAndUser(int foodId, int userId) {
+        String sql = "SELECT * FROM adjusted_recipe WHERE Food_id = ? AND user_id = ? LIMIT 1";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, foodId);
+            ps.setInt(2, userId);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    com.model.bean.AdjustedRecipe adjusted = new com.model.bean.AdjustedRecipe();
+                    try {
+                        adjusted.setId(rs.getInt("id"));
+                    } catch (Exception ignore) {
+                        // một số CSDL có thể đặt tên khóa chính khác, không bắt buộc dùng ở luồng hiển thị
+                    }
+                    adjusted.setFoodId(rs.getInt("Food_id"));
+                    adjusted.setUserId(rs.getInt("user_id"));
+                    adjusted.setRecipe(rs.getString("recipe"));
+                    adjusted.setCalories(rs.getDouble("calories"));
+                    adjusted.setFat(rs.getDouble("fat"));
+                    adjusted.setProtein(rs.getDouble("Protein"));
+                    adjusted.setCarbohydrate(rs.getDouble("carbohydrate"));
+                    return adjusted;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

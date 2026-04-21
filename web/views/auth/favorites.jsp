@@ -121,7 +121,7 @@
             </c:if>
             <div class="grid">
                 <c:forEach var="food" items="${customizedFoods}">
-                    <a href="${pageContext.request.contextPath}/food-detail?id=${food.food_id}" class="card">
+                    <a href="${pageContext.request.contextPath}/food-detail?id=${food.food_id}&source=customized" class="card">
                         <div class="card-img-wrapper">
                             <img src="${pageContext.request.contextPath}/assets/images/${food.image_url}" alt="${food.food_name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=No+Image'">
                             <span class="badge-custom"><i class="fa-regular fa-pen-to-square"></i> Công thức riêng</span>

@@ -96,11 +96,13 @@
                         <c:otherwise>
                             <c:forEach var="food" items="${section.foods}">
                                 <div class="food-pill">
-                                    <img src="${pageContext.request.contextPath}/assets/images/${food.imageUrl}" alt="${food.foodName}">
-                                    <div>
-                                        <h4>${food.foodName}</h4>
-                                        <p><fmt:formatNumber value="${food.calories}" minFractionDigits="2" maxFractionDigits="2" /> calo</p>
-                                    </div>
+                                    <a href="${pageContext.request.contextPath}/food-detail?id=${food.foodId}" style="display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit; flex:1;">
+                                        <img src="${pageContext.request.contextPath}/assets/images/${food.imageUrl}" alt="${food.foodName}">
+                                        <div>
+                                            <h4>${food.foodName}</h4>
+                                            <p><fmt:formatNumber value="${food.calories}" minFractionDigits="2" maxFractionDigits="2" /> calo</p>
+                                        </div>
+                                    </a>
                                      <c:if test="${canEditSelectedDate}">
                                         <form method="post" action="${pageContext.request.contextPath}/meal_plan" class="remove-form">
                                             <input type="hidden" name="action" value="removeDetail">

@@ -132,20 +132,23 @@
             </div>
             <div class="suggest-grid">
                 <c:forEach var="food" items="${homeSuggestions}">
-                    <div class="food-card">
-                        <img src="${pageContext.request.contextPath}/assets/images/${food.image_url}" alt="${food.food_name}" class="food-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=No+Image'">
-                        <div class="status-badge ${food.allergyConflictCount == 0 ? 'bg-safe' : 'bg-warn'}">
-                            <i class="fa-solid ${food.allergyConflictCount == 0 ? 'fa-check' : 'fa-shield-halved'}"></i> ${food.allergyConflictCount == 0 ? 'An toàn' : 'Có dị ứng'}
-                        </div>
-                   <div class="food-content">
-                            <h4>${food.food_name}</h4>
-                            <p><fmt:formatNumber value="${food.calories}" maxFractionDigits="0"/> calo</p>
-                            <div class="food-footer">
-                                <i class="fa-regular fa-star"></i>
-                                <span><fmt:formatNumber value="${food.suitabilityScore}" maxFractionDigits="0"/>% phù hợp</span>
+                     <a href="${pageContext.request.contextPath}/food-detail?id=${food.food_id}" style="text-decoration:none; color:inherit;">
+                        <div class="food-card">
+                            <img src="${pageContext.request.contextPath}/assets/images/${food.image_url}" alt="${food.food_name}" class="food-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                            <div class="status-badge ${food.allergyConflictCount == 0 ? 'bg-safe' : 'bg-warn'}">
+                                <i class="fa-solid ${food.allergyConflictCount == 0 ? 'fa-check' : 'fa-shield-halved'}"></i> ${food.allergyConflictCount == 0 ? 'An toàn' : 'Có dị ứng'}
+                            </div>
+                       <div class="food-content">
+                                <h4>${food.food_name}</h4>
+                                <p><fmt:formatNumber value="${food.calories}" maxFractionDigits="0"/> calo</p>
+                                <div class="food-footer">
+                                    <i class="fa-regular fa-star"></i>
+                                    <span><fmt:formatNumber value="${food.suitabilityScore}" maxFractionDigits="0"/>% phù hợp</span>
                         </div>
                     </div>
+                     
                 </div>
+                     </a>
                         </c:forEach>
             </div>
         </section>

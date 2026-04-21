@@ -145,6 +145,11 @@
                 <i class="fa-solid fa-circle-check"></i> Đã xóa món ăn thành công!
             </div>
         </c:if>
+        <c:if test="${param.success == 'updated'}">
+            <div style="background: #d1fae5; color: #059669; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-check"></i> Đã cập nhật món ăn thành công!
+            </div>
+        </c:if>
         <c:if test="${param.error == 'delete_failed'}">
             <div style="background: #fee2e2; color: #dc2626; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                 <i class="fa-solid fa-circle-exclamation"></i> Có lỗi xảy ra, không thể xóa món ăn này!
@@ -185,7 +190,7 @@
                             <td>${f.fat}g</td>
                             <td>${f.carbohydrate}g</td>
                             <td>
-                                <a href="#" class="action-btn btn-edit"><i class="fa-regular fa-pen-to-square"></i></a>
+                                <a href="${pageContext.request.contextPath}/admin/edit_food?id=${f.food_id}" class="action-btn btn-edit"><i class="fa-regular fa-pen-to-square"></i></a>
                                 <a href="javascript:void(0);" class="action-btn btn-delete" onclick="showDeleteModal('${f.food_id}', '${f.food_name}')">
                                     <i class="fa-regular fa-trash-can"></i>
                                 </a>

@@ -323,6 +323,50 @@ public class FoodDAO {
         }
         return false;
     }
+     public boolean updateFoodWithIngredients(Food food, String[] ingredientIds, String[] quantities, String[] units) {
+        String sqlFood = "UPDATE food SET Food_name = ?, description = ?, recipe = ?, image_url = ?, calories = ?, protein = ?, fat = ?, carbohydrate = ? WHERE Food_id = ?";
+        String sqlDeleteDetail = "DELETE FROM food_ingredient WHERE Food_id = ?";
+        String sqlInsertDetail = "INSERT INTO food_ingredient (Food_id, Ingredient_id, Quantity, Unit) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = new DBContext().getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement psFood = conn.prepareStatement(sqlFood)) {
+                psFood.setString(1, food.getFood_name());
+                psFood.setString(2, food.getDescription());
+                psFood.setString(3, food.getRecipe());
+                psFood.setString(4, food.getImage_url());
+                psFood.setDouble(5, food.getCalories());
+                psFood.setDouble(6, food.getProtein());
+                psFood.setDouble(7, food.getFat());
+                psFood.setDouble(8, food.getCarbohydrate());
+                psFood.setInt(9, food.getFood_id());
+                psFood.executeUpdate();
+            }
+            
+            try (PreparedStatement psDelete = conn.prepareStatement(sqlDeleteDetail)) {
+                psDelete.setInt(1, food.getFood_id());
+                psDelete.executeUpdate();
+            }
+
+            if (ingredientIds != null && quantities != null && units != null) {
+                try (PreparedStatement psInsert = conn.prepareStatement(sqlInsertDetail)) {
+                    for (int i = 0; i < ingredientIds.length; i++) {
+                        psInsert.setInt(1, food.getFood_id());
+                        psInsert.setInt(2, Integer.parseInt(ingredientIds[i]));
+                        psInsert.setDouble(3, Double.parseDouble(quantities[i]));
+                        psInsert.setString(4, units[i]);
+                        psInsert.addBatch();
+                    }
+                    psInsert.executeBatch();
+                }
+            }
+            conn.commit();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
     
     public java.util.List<com.model.bean.IngredientItem> getAllIngredientsFromDB() {
         java.util.List<com.model.bean.IngredientItem> list = new java.util.ArrayList<>();

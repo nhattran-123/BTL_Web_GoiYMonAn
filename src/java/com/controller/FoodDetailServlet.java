@@ -3,6 +3,7 @@ package com.controller;
 import com.model.bean.Food;
 import com.model.bean.User;
 import com.model.dao.FoodDAO;
+import com.model.dao.RecipeDAO;
 import com.model.dao.UserFavoriteDAO;
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -32,12 +33,24 @@ public class FoodDetailServlet extends HttpServlet {
         try {
             int foodId = Integer.parseInt(idRaw);
             FoodDAO foodDAO = new FoodDAO();
+             RecipeDAO recipeDAO = new RecipeDAO();
             UserFavoriteDAO favoriteDAO = new UserFavoriteDAO();
             Food food = foodDAO.getFoodById(foodId);
             java.util.List<com.model.bean.IngredientItem> ingredients = foodDAO.getIngredientsByFoodId(foodId);
             if (food == null) {
                 response.sendRedirect(request.getContextPath() + "/foods");
                 return;
+            }
+            String source = request.getParameter("source");
+            if ("customized".equals(source)) {
+                com.model.bean.AdjustedRecipe adjustedRecipe = recipeDAO.getAdjustedRecipeByFoodAndUser(foodId, currentUser.getId());
+                if (adjustedRecipe != null) {
+                    food.setRecipe(adjustedRecipe.getRecipe());
+                    food.setCalories(adjustedRecipe.getCalories());
+                    food.setFat(adjustedRecipe.getFat());
+                    food.setProtein(adjustedRecipe.getProtein());
+                    food.setCarbohydrate(adjustedRecipe.getCarbohydrate());
+                }
             }
             
             boolean isFavorite = favoriteDAO.isFavorite(currentUser.getId(), foodId);
