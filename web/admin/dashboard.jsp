@@ -98,12 +98,21 @@
         </div>
 
                     
-        <div class="chart-card" style="margin-top: -10px;">
-            <h3 style="text-align: center; color: #111827; font-size: 18px; margin-bottom: 30px;">Người dùng đăng ký mới</h3>
-            <div style="height: 300px; width: 100%;">
-                <canvas id="userChart"></canvas>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3 style="text-align: center; color: #111827; font-size: 16px; margin-bottom: 20px;">Thống kê đăng nhập 10 ngày qua</h3>
+                <div style="height: 300px; width: 100%;">
+                    <canvas id="loginChart"></canvas>
+                </div>
             </div>
-        </div> 
+
+            <div class="chart-card">
+                <h3 style="text-align: center; color: #111827; font-size: 16px; margin-bottom: 20px;">Người dùng đăng ký mới (Năm nay)</h3>
+                <div style="height: 300px; width: 100%;">
+                    <canvas id="registerChart"></canvas>
+                </div>
+            </div>
+        </div>
                     
                     
         <div class="bottom-grid">
@@ -148,73 +157,94 @@
             
         </div>
     </main>
-    <script>
-    
+  <script>
         Chart.register(ChartDataLabels);
 
-        // Lấy dữ liệu 12 tháng từ backend Java truyền sang
-        const rawData = ${userChartData != null ? userChartData : '[0,0,0,0,0,0,0,0,0,0,0,0]'};
+        // ĐĂNG NHẬP 10 NGÀY QUA (BIỂU ĐỒ ĐƯỜNG - BÊN TRÁI)
+        const loginLabels = ${chartLabels != null ? chartLabels : "[]"};
+        const loginData = ${chartData != null ? chartData : "[]"};
 
-        // TỰ ĐỘNG: Lấy tháng hiện tại (Javascript đếm tháng từ 0-11 nên phải + 1)
-        const currentMonth = new Date().getMonth() + 1; 
+        const ctxLogin = document.getElementById('loginChart').getContext('2d');
+        let gradientLogin = ctxLogin.createLinearGradient(0, 0, 0, 300);
+        gradientLogin.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); 
+        gradientLogin.addColorStop(1, 'rgba(16, 185, 129, 0.0)'); 
 
-        //Tạo danh sách nhãn (T1, T2... đến tháng hiện tại)
-        const dynamicLabels = [];
-        for (let i = 1; i <= currentMonth; i++) {
-            dynamicLabels.push('T' + i);
-        }
-
-        // Cắt mảng dữ liệu chỉ lấy từ tháng 1 đến tháng hiện tại
-        const displayData = rawData.slice(0, currentMonth);
-
-        const ctx = document.getElementById('userChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
+        new Chart(ctxLogin, {
+            type: 'line', 
             data: {
-                labels: dynamicLabels, 
+                labels: loginLabels, 
                 datasets: [{
-                    label: 'Người dùng mới',
-                    data: displayData, 
-                    backgroundColor: '#10b981',
-                    borderRadius: 8,
-                    borderSkipped: false,
-                    barThickness: 50 
+                    label: 'Lượt đăng nhập',
+                    data: loginData, 
+                    borderColor: '#10b981', 
+                    backgroundColor: gradientLogin, 
+                    borderWidth: 3,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#10b981',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    fill: true, 
+                    tension: 0.3 
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: false 
-                    },
+                    legend: { display: false },
                     datalabels: {
-                        anchor: 'end',
-                        align: 'top',
-                        color: '#6b7280',
-                        font: {
-                            weight: 'bold',
-                            size: 13
-                        },
-                        formatter: function(value) {
-                            return value > 0 ? value : ''; 
-                        }
+                        anchor: 'end', align: 'top', color: '#10b981',
+                        font: { weight: 'bold', size: 12 },
+                        formatter: function(value) { return value > 0 ? value : ''; }
                     }
                 },
                 scales: {
-                    x: {
-                        grid: { display: false, drawBorder: false },
-                        ticks: { color: '#9ca3af', font: { weight: 'bold' } }
-                    },
-                    y: {
-                        display: false,
-                        beginAtZero: true,
-                        suggestedMax: Math.max(...displayData) * 1.15 
+                    x: { grid: { display: false, drawBorder: false }, ticks: { color: '#9ca3af', font: { weight: '500' } } },
+                    y: { display: false, beginAtZero: true, suggestedMax: Math.max(...(loginData.length ? loginData : [0])) * 1.2 }
+                },
+                layout: { padding: { top: 20 } }
+            }
+        });
+
+        // NGƯỜI DÙNG ĐĂNG KÝ MỚI (BIỂU ĐỒ CỘT - BÊN PHẢI)
+        const rawRegisterData = ${userChartData != null ? userChartData : '[0,0,0,0,0,0,0,0,0,0,0,0]'};
+        const currentMonth = new Date().getMonth() + 1; 
+
+        // Tạo nhãn T1, T2...
+        const registerLabels = [];
+        for (let i = 1; i <= currentMonth; i++) {
+            registerLabels.push('T' + i);
+        }
+        const registerData = rawRegisterData.slice(0, currentMonth);
+
+        const ctxRegister = document.getElementById('registerChart').getContext('2d');
+        new Chart(ctxRegister, {
+            type: 'bar',
+            data: {
+                labels: registerLabels, 
+                datasets: [{
+                    label: 'Người dùng mới',
+                    data: registerData, 
+                    backgroundColor: '#0ea5e9', // Đổi màu xanh dương cho khác biệt biểu đồ 1
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    barThickness: 30 // Thu nhỏ cột lại một chút vì chia 2 khung
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end', align: 'top', color: '#6b7280',
+                        font: { weight: 'bold', size: 12 },
+                        formatter: function(value) { return value > 0 ? value : ''; }
                     }
                 },
-                layout: {
-                    padding: { top: 20 }
-                }
+                scales: {
+                    x: { grid: { display: false, drawBorder: false }, ticks: { color: '#9ca3af', font: { weight: '500' } } },
+                    y: { display: false, beginAtZero: true, suggestedMax: Math.max(...(registerData.length ? registerData : [0])) * 1.2 }
+                },
+                layout: { padding: { top: 20 } }
             }
         });
     </script>

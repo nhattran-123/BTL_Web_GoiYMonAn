@@ -5,6 +5,8 @@ import com.util.DBContext;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -531,5 +533,42 @@ public class UserDAO {
         }
 
         return monthlyData;
+    }
+    
+    public Map<String, Integer> getLoginStatsLast10Days() {
+        // Dùng LinkedHashMap để giữ nguyên thứ tự các ngày từ quá khứ đến hiện tại
+        Map<String, Integer> stats = new LinkedHashMap<>();
+
+        // Tạo danh sách 10 ngày gần nhất (bao gồm hôm nay), mặc định số lượt login = 0
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM");
+        for (int i = 9; i >= 0; i--) {
+            stats.put(today.minusDays(i).format(formatter), 0);
+        }
+
+        //Query đếm số lượt login nhóm theo ngày (trong 10 ngày qua)
+        String sql = "SELECT login_date, COUNT(id) as login_count " +
+                     "FROM user_login " +
+                     "WHERE login_date >= DATE_SUB(CURRENT_DATE, INTERVAL 9 DAY) " +
+                     "GROUP BY login_date";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                // Lấy ngày từ DB và chuyển sang định dạng dd/MM
+                LocalDate loginDate = rs.getDate("login_date").toLocalDate();
+                String formattedDate = loginDate.format(formatter);
+
+                // Nếu ngày này có trong danh sách 10 ngày, thì cập nhật số lượt login thực tế
+                if (stats.containsKey(formattedDate)) {
+                    stats.put(formattedDate, rs.getInt("login_count"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return stats;
     }
 }

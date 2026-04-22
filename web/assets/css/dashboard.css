@@ -50,6 +50,18 @@
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px; 
+            margin-bottom: 30px;
+        }
+        
+        .chart-grid .chart-card {
+            margin-bottom: 0; 
+            margin-top: 0;
+            padding: 20px;
+        }
         .list-card {
             background: #fff;
             border-radius: 12px;

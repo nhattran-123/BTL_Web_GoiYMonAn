@@ -49,6 +49,24 @@ public class AdminDashboardServlet extends HttpServlet {
         Map<String, Integer> topFoods = favoriteDAO.getTopFavoriteFoods(3); 
         Map<String, Double> popularGoals = userDAO.getPopularGoals();
 
+        Map<String, Integer> loginStats = userDAO.getLoginStatsLast10Days();
+
+        // Tách Map thành 2 chuỗi format kiểu Javascript Array
+        StringBuilder labelsJson = new StringBuilder("[");
+        StringBuilder dataJson = new StringBuilder("[");
+
+        for (Map.Entry<String, Integer> entry : loginStats.entrySet()) {
+            labelsJson.append("'").append(entry.getKey()).append("',");
+            dataJson.append(entry.getValue()).append(",");
+        }
+
+        // Đóng mảng
+        if (labelsJson.length() > 1) labelsJson.setLength(labelsJson.length() - 1);
+        if (dataJson.length() > 1) dataJson.setLength(dataJson.length() - 1);
+        labelsJson.append("]");
+        dataJson.append("]");
+
+        
         // 3. Gắn dữ liệu gửi sang giao diện (JSP)
         request.setAttribute("totalUsers", totalUsers);
         request.setAttribute("totalFoods", totalFoods);
@@ -60,6 +78,8 @@ public class AdminDashboardServlet extends HttpServlet {
         request.setAttribute("foodGrowth", foodGrowth);
         request.setAttribute("menuGrowth", menuGrowth);
         request.setAttribute("userChartData", java.util.Arrays.toString(userStats));
+        request.setAttribute("chartLabels", labelsJson.toString());
+        request.setAttribute("chartData", dataJson.toString());
         // 4. Chuyển hướng
         request.getRequestDispatcher("/admin/dashboard.jsp").forward(request, response);
     }
