@@ -56,7 +56,11 @@ public class LoginServlet extends HttpServlet {
             }
         } else {
             // Đăng nhập thất bại -> Giữ nguyên Forward để truyền thông báo lỗi
-            request.setAttribute("error", "Email hoặc mật khẩu không chính xác!");
+            if (dao.isInactiveAccount(email, hashedPassword)) {
+                request.setAttribute("error", "Tài khoản đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên.");
+            } else {
+                request.setAttribute("error", "Email hoặc mật khẩu không chính xác!");
+            }
             request.setAttribute("email", email);
             request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
         }

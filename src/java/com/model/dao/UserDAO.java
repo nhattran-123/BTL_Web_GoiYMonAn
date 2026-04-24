@@ -51,7 +51,7 @@ public class UserDAO {
 
     // Kiểm tra đăng nhập
     public User checkLogin(String email, String password) {
-        String query = "SELECT * FROM Users WHERE email = ? AND password = ?";
+         String query = "SELECT * FROM Users WHERE email = ? AND password = ? AND is_activate = 1";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, email);
@@ -74,6 +74,22 @@ public class UserDAO {
             }
         } catch (Exception e) { e.printStackTrace(); }
         return null;
+    }
+    
+        // Kiểm tra tài khoản có đúng thông tin đăng nhập nhưng đã bị vô hiệu hóa hay không
+    public boolean isInactiveAccount(String email, String password) {
+        String query = "SELECT 1 FROM Users WHERE email = ? AND password = ? AND is_activate = 0";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, email);
+            ps.setString(2, password);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     // Cập nhật chỉ số sức khỏe cơ bản
@@ -305,14 +321,19 @@ public class UserDAO {
     // Lấy thông kê đếm số lượng 
     public int[] getUserStats() {
         int[] stats = new int[4]; // [Tổng, Hoạt động, Không HĐ, Admin]
-        String sql = "SELECT COUNT(*) AS total, SUM(CASE WHEN Role = 'ADMIN' THEN 1 ELSE 0 END) AS admins FROM Users";
+        String sql = "SELECT "
+                + "COUNT(*) AS total, "
+                + "SUM(CASE WHEN is_activate = 1 THEN 1 ELSE 0 END) AS active_users, "
+                + "SUM(CASE WHEN is_activate = 0 THEN 1 ELSE 0 END) AS inactive_users, "
+                + "SUM(CASE WHEN Role = 'ADMIN' THEN 1 ELSE 0 END) AS admins "
+                + "FROM Users";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 stats[0] = rs.getInt("total");
-                stats[1] = rs.getInt("total"); 
-                stats[2] = 0;                  
+                stats[1] = rs.getInt("active_users");
+                stats[2] = rs.getInt("inactive_users");                  
                 stats[3] = rs.getInt("admins");
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -350,7 +371,7 @@ public class UserDAO {
                     user.setRole(rs.getString("Role"));
                     
                    
-                    user.setIs_activate(1); 
+                     user.setIs_activate(rs.getInt("is_activate")); 
                     user.setCreatedAt(rs.getString("create_at"));
                     
                     list.add(user);
@@ -410,7 +431,7 @@ public class UserDAO {
                 user.setFullName(rs.getString("name"));
                 user.setEmail(rs.getString("email"));
                 user.setRole(rs.getString("Role"));
-                user.setIs_activate(1); // Fake data
+                user.setIs_activate(rs.getInt("is_activate"));
                 user.setCreatedAt(rs.getString("create_at")); 
                 list.add(user);
             }
@@ -421,7 +442,7 @@ public class UserDAO {
     // Vô hiệu hóa = XÓA THẲNG KHỎI CSDL (Kèm xóa dữ liệu liên quan để tránh lỗi khóa ngoại)
     public void deleteUser(int userId) {
         try {
-            String sql = "UPDATE users SET is_activate = 0 WHERE id = ?";
+            String sql = "UPDATE users SET is_activate = 0 WHERE User_id = ?";
             Connection conn = new DBContext().getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, userId);

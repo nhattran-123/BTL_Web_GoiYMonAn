@@ -119,13 +119,14 @@
                             <td>${u.email}</td>
                             <td><strong>${u.role}</strong></td>
                             <td>
-                                <span class="status-badge bg-active" style="background:#d1fae5; color:#065f46; padding: 5px 12px; border-radius: 20px; font-size: 13px;">
-                                    <c:choose>
-                                <c:when test="${u.is_activate==1}">
+                                 <span class="status-badge ${u.is_activate==1 ? 'bg-active' : 'bg-inactive'}"
+                                      style="${u.is_activate==1 ? 'background:#d1fae5; color:#065f46;' : 'background:#fee2e2; color:#991b1b;'} padding: 5px 12px; border-radius: 20px; font-size: 13px;">
+                                 </c:choose>
+                                     <c:when test="${u.is_activate==1}">
                                     Hoạt động
                                 </c:when>
                                 <c:otherwise>
-                                    Bi hiệu hóa
+                                    Bị hiệu hóa
                                 </c:otherwise>
                             </c:choose>
                                 </span>
@@ -138,9 +139,16 @@
                                         <a href="javascript:void(0)" onclick="openEmailModal('${u.email}')" style="display: block; padding: 8px 5px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
                                             <i class="fa-regular fa-envelope"></i> Gửi email
                                         </a>
-                                        <a href="${pageContext.request.contextPath}/admin/users?action=deactivate&id=${u.id}" style="display: block; padding: 8px 5px; color: #e74c3c; text-decoration: none;" onclick="return confirm('Cảnh báo: Bạn có chắc chắn muốn Vô hiệu hóa tài khoản');">
-                                            <i class="fa-solid fa-trash"></i> Vô hiệu hóa tài khoản
-                                        </a>
+                                         <c:if test="${u.is_activate==1}">
+                                            <a href="${pageContext.request.contextPath}/admin/users?action=deactivate&id=${u.id}" style="display: block; padding: 8px 5px; color: #e74c3c; text-decoration: none;" onclick="return confirm('Cảnh báo: Bạn có chắc chắn muốn vô hiệu hóa tài khoản này?');">
+                                                <i class="fa-solid fa-trash"></i> Vô hiệu hóa tài khoản
+                                            </a>
+                                        </c:if>
+                                        <c:if test="${u.is_activate!=1}">
+                                            <span style="display: block; padding: 8px 5px; color: #94a3b8;">
+                                                <i class="fa-solid fa-user-lock"></i> Đã vô hiệu hóa
+                                            </span>
+                                        </c:if>
                                     </div>
                                 </div>
                             </td>
