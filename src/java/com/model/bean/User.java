@@ -14,9 +14,9 @@ public class User {
     private float desired_height;
     private String role;
     
-    // 2 biến này dùng để chứa dữ liệu giả cho giao diện
-    private int status; 
+    private int is_activate; 
     private String createdAt;
+    
 
     public User() {
     }
@@ -60,8 +60,15 @@ public class User {
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
 
-    public int getStatus() { return status; }
-    public void setStatus(int status) { this.status = status; }
+    public int getIs_activate() {
+        return is_activate;
+    }
+
+    public void setIs_activate(int is_activate) {
+        this.is_activate = is_activate;
+    }
+
+    
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }

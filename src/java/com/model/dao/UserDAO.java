@@ -311,15 +311,13 @@ public class UserDAO {
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 stats[0] = rs.getInt("total");
-                stats[1] = rs.getInt("total"); // Fake: Đang hoạt động = Tổng số
-                stats[2] = 0;                  // Fake: Không hoạt động = 0
+                stats[1] = rs.getInt("total"); 
+                stats[2] = 0;                  
                 stats[3] = rs.getInt("admins");
             }
         } catch (Exception e) { e.printStackTrace(); }
         return stats;
     }
-
-    // Lấy danh sách kết hợp Tìm kiếm & Lọc (Tự bơm dữ liệu giả cho Status/Date)
     public List<User> searchAndFilterUsers(String keyword, String role) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM Users WHERE 1=1 ";
@@ -351,9 +349,9 @@ public class UserDAO {
                     user.setEmail(rs.getString("email"));
                     user.setRole(rs.getString("Role"));
                     
-                    // BƠM DỮ LIỆU GIẢ CHO GIAO DIỆN
-                    user.setStatus(1); // Luôn là Hoạt động
-                    user.setCreatedAt("10-04-2024"); // Ngày tạo cố định
+                   
+                    user.setIs_activate(1); 
+                    user.setCreatedAt(rs.getString("create_at"));
                     
                     list.add(user);
                 }
@@ -412,8 +410,8 @@ public class UserDAO {
                 user.setFullName(rs.getString("name"));
                 user.setEmail(rs.getString("email"));
                 user.setRole(rs.getString("Role"));
-                user.setStatus(1); // Fake data
-                user.setCreatedAt("10-04-2024"); // Fake data
+                user.setIs_activate(1); // Fake data
+                user.setCreatedAt(rs.getString("create_at")); 
                 list.add(user);
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -421,36 +419,16 @@ public class UserDAO {
     }
 
     // Vô hiệu hóa = XÓA THẲNG KHỎI CSDL (Kèm xóa dữ liệu liên quan để tránh lỗi khóa ngoại)
-    public boolean deleteUser(int userId) {
-        String sqlDeleteAllergy = "DELETE FROM User_Allergy WHERE User_id = ?";
-        String sqlDeleteDisease = "DELETE FROM User_disease WHERE User_id = ?";
-        String sqlDeleteUser = "DELETE FROM Users WHERE User_id = ?";
-
-        try (Connection conn = new DBContext().getConnection()) {
-            
-            // 1. Xóa Dị ứng trước
-            try (PreparedStatement ps1 = conn.prepareStatement(sqlDeleteAllergy)) {
-                ps1.setInt(1, userId);
-                ps1.executeUpdate();
-            }
-            
-            // 2. Xóa Bệnh lý tiếp theo
-            try (PreparedStatement ps2 = conn.prepareStatement(sqlDeleteDisease)) {
-                ps2.setInt(1, userId);
-                ps2.executeUpdate();
-            }
-            
-            // 3. Cuối cùng mới tiêu diệt User ở bảng chính
-            try (PreparedStatement ps3 = conn.prepareStatement(sqlDeleteUser)) {
-                ps3.setInt(1, userId);
-                return ps3.executeUpdate() > 0;
-            }
-            
+    public void deleteUser(int userId) {
+        try {
+            String sql = "UPDATE users SET is_activate = 0 WHERE id = ?";
+            Connection conn = new DBContext().getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.executeUpdate();
         } catch (Exception e) {
-            System.out.println("LỖI KHI XÓA USER: " + e.getMessage());
-            e.printStackTrace();
         }
-        return false;
+        
     }
     // Lay tong so nguoi dung
     public int getTotalUsers() {
@@ -547,7 +525,7 @@ public class UserDAO {
         }
 
         //Query đếm số lượt login nhóm theo ngày (trong 10 ngày qua)
-        String sql = "SELECT login_date, COUNT(id) as login_count " +
+        String sql = "SELECT login_date, COUNT(distinct id) as login_count " +
                      "FROM user_login " +
                      "WHERE login_date >= DATE_SUB(CURRENT_DATE, INTERVAL 9 DAY) " +
                      "GROUP BY login_date";

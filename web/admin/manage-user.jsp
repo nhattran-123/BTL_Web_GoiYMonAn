@@ -119,7 +119,16 @@
                             <td>${u.email}</td>
                             <td><strong>${u.role}</strong></td>
                             <td>
-                                <span class="status-badge bg-active" style="background:#d1fae5; color:#065f46; padding: 5px 12px; border-radius: 20px; font-size: 13px;">Hoạt động</span>
+                                <span class="status-badge bg-active" style="background:#d1fae5; color:#065f46; padding: 5px 12px; border-radius: 20px; font-size: 13px;">
+                                    <c:choose>
+                                <c:when test="${u.is_activate==1}">
+                                    Hoạt động
+                                </c:when>
+                                <c:otherwise>
+                                    Bi hiệu hóa
+                                </c:otherwise>
+                            </c:choose>
+                                </span>
                             </td>
                             <td>${u.createdAt}</td>
                             <td>
@@ -129,8 +138,8 @@
                                         <a href="javascript:void(0)" onclick="openEmailModal('${u.email}')" style="display: block; padding: 8px 5px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
                                             <i class="fa-regular fa-envelope"></i> Gửi email
                                         </a>
-                                        <a href="${pageContext.request.contextPath}/admin/users?action=deactivate&id=${u.id}" style="display: block; padding: 8px 5px; color: #e74c3c; text-decoration: none;" onclick="return confirm('Cảnh báo: Bạn có chắc chắn muốn XÓA VĨNH VIỄN người dùng này khỏi CSDL?');">
-                                            <i class="fa-solid fa-trash"></i> Xóa tài khoản
+                                        <a href="${pageContext.request.contextPath}/admin/users?action=deactivate&id=${u.id}" style="display: block; padding: 8px 5px; color: #e74c3c; text-decoration: none;" onclick="return confirm('Cảnh báo: Bạn có chắc chắn muốn Vô hiệu hóa tài khoản');">
+                                            <i class="fa-solid fa-trash"></i> Vô hiệu hóa tài khoản
                                         </a>
                                     </div>
                                 </div>
