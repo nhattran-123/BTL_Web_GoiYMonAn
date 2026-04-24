@@ -440,7 +440,7 @@ public class UserDAO {
     }
 
     // Vô hiệu hóa = XÓA THẲNG KHỎI CSDL (Kèm xóa dữ liệu liên quan để tránh lỗi khóa ngoại)
-    public void deleteUser(int userId) {
+    public void deactivateUser(int userId) {
         try {
             String sql = "UPDATE users SET is_activate = 0 WHERE User_id = ?";
             Connection conn = new DBContext().getConnection();
@@ -449,6 +449,23 @@ public class UserDAO {
             ps.executeUpdate();
         } catch (Exception e) {
         }
+        }
+
+    // Kích hoạt lại tài khoản người dùng
+    public void activateUser(int userId) {
+        try {
+            String sql = "UPDATE users SET is_activate = 1 WHERE User_id = ?";
+            Connection conn = new DBContext().getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+        }
+    }
+
+    // Giữ tương thích với các đoạn code cũ vẫn gọi deleteUser
+    public void deleteUser(int userId) {
+        deactivateUser(userId);
         
     }
     // Lay tong so nguoi dung

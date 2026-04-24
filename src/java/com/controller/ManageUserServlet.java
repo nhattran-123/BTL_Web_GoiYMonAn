@@ -22,9 +22,13 @@ public class ManageUserServlet extends HttpServlet {
         
         // 1. Xử lý tính năng XÓA (nếu có tham số action=deactivate)
         String action = request.getParameter("action");
-        if ("deactivate".equals(action)) {
+         if ("deactivate".equals(action) || "activate".equals(action)) {
             int userId = Integer.parseInt(request.getParameter("id"));
-            dao.deleteUser(userId);
+            if ("deactivate".equals(action)) {
+                dao.deactivateUser(userId);
+            } else {
+                dao.activateUser(userId);
+            }
             response.sendRedirect(request.getContextPath() + "/admin/users");
             return;
         }

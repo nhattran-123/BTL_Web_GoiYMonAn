@@ -121,7 +121,7 @@
                             <td>
                                  <span class="status-badge ${u.is_activate==1 ? 'bg-active' : 'bg-inactive'}"
                                       style="${u.is_activate==1 ? 'background:#d1fae5; color:#065f46;' : 'background:#fee2e2; color:#991b1b;'} padding: 5px 12px; border-radius: 20px; font-size: 13px;">
-                                 </c:choose>
+                                 <c:choose>
                                      <c:when test="${u.is_activate==1}">
                                     Hoạt động
                                 </c:when>
@@ -145,9 +145,9 @@
                                             </a>
                                         </c:if>
                                         <c:if test="${u.is_activate!=1}">
-                                            <span style="display: block; padding: 8px 5px; color: #94a3b8;">
-                                                <i class="fa-solid fa-user-lock"></i> Đã vô hiệu hóa
-                                            </span>
+                                            <a href="${pageContext.request.contextPath}/admin/users?action=activate&id=${u.id}" style="display: block; padding: 8px 5px; color: #16a34a; text-decoration: none;" onclick="return confirm('Bạn có muốn kích hoạt lại tài khoản này không?');">
+                                                <i class="fa-solid fa-user-check"></i> Bỏ vô hiệu hóa
+                                            </a>
                                         </c:if>
                                     </div>
                                 </div>
@@ -159,7 +159,7 @@
 
             <div class="pagination">
                 <c:if test="${tag > 1}">
-                    <a href="users?page=${tag-1}&keyword=${txtSearch}&role=${txtRole}">&laquo;</a>
+                    <a href="${pageContext.request.contextPath}/admin/users?page=${tag-1}&keyword=${txtSearch}&role=${txtRole}">&laquo;</a>
                 </c:if>
 
                <c:set var="startP" value="${((tag - 1) / 10) * 10 + 1}" />
@@ -167,11 +167,11 @@
 
                 <c:forEach begin="${startP}" end="${finishP}" var="i">
                     <a class="${tag == i ? 'active' : ''}" 
-                       href="users?page=${i}&keyword=${txtSearch}&role=${txtRole}">${i}</a>
+                      href="${pageContext.request.contextPath}/admin/users?page=${i}&keyword=${txtSearch}&role=${txtRole}">${i}</a>
                 </c:forEach>
 
                 <c:if test="${tag < endP}">
-                    <a href="users?page=${tag+1}&keyword=${txtSearch}&role=${txtRole}">&raquo;</a>
+                   <a href="${pageContext.request.contextPath}/admin/users?page=${tag+1}&keyword=${txtSearch}&role=${txtRole}">&raquo;</a>
                 </c:if>
             </div>
         </div>
